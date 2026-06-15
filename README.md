@@ -1,3 +1,7 @@
+# 想法
+- 本项目是结合codex从重想法到完成
+- vibe coding完成
+- pyoffer-agent-docs是我的想法结合codex生成的开发文档
 # PyOffer Agent
 
 PyOffer Agent is a web app for Python backend and AI Agent interview preparation.
