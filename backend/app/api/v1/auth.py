@@ -1,0 +1,26 @@
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+
+from backend.app.api.deps import get_current_user
+from backend.app.core.database import get_db
+from backend.app.models.user import User
+from backend.app.schemas.auth import LoginRequest, RegisterRequest, TokenResponse, UserResponse
+from backend.app.services.auth_service import login_user, register_user
+
+router = APIRouter()
+
+
+@router.post("/register", response_model=UserResponse)
+def register(payload: RegisterRequest, db: Session = Depends(get_db)) -> User:
+    return register_user(db, payload)
+
+
+@router.post("/login", response_model=TokenResponse)
+def login(payload: LoginRequest, db: Session = Depends(get_db)) -> TokenResponse:
+    return login_user(db, str(payload.email), payload.password)
+
+
+@router.get("/me", response_model=UserResponse)
+def me(current_user: User = Depends(get_current_user)) -> User:
+    return current_user
+

@@ -1,0 +1,25 @@
+import uuid
+
+from pydantic import BaseModel, Field
+
+from backend.app.schemas.common import InterviewMode, ORMModel
+
+
+class QuestionGenerateRequest(BaseModel):
+    mode: InterviewMode
+    difficulty: str = "intern"
+    count: int = Field(default=10, ge=1, le=20)
+    focus: list[str] = []
+
+
+class QuestionResponse(ORMModel):
+    id: uuid.UUID
+    type: str
+    difficulty: str
+    question: str
+    evaluation_points: list[str]
+
+
+class QuestionListResponse(BaseModel):
+    questions: list[QuestionResponse]
+

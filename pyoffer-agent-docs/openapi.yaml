@@ -1,0 +1,717 @@
+openapi: 3.1.0
+info:
+  title: PyOffer Agent API
+  version: 0.1.0
+  description: API draft for the PyOffer Agent MVP.
+servers:
+  - url: http://localhost:8000/api/v1
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    ErrorResponse:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+    RegisterRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        nickname:
+          type: string
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+    TokenResponse:
+      type: object
+      required: [access_token, token_type]
+      properties:
+        access_token:
+          type: string
+        token_type:
+          type: string
+          example: bearer
+    UserResponse:
+      type: object
+      required: [id, email]
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        nickname:
+          type: string
+          nullable: true
+    ProjectCreate:
+      type: object
+      required: [name, target_role, direction]
+      properties:
+        name:
+          type: string
+        target_company:
+          type: string
+          nullable: true
+        target_role:
+          type: string
+        direction:
+          type: string
+          enum: [python_backend, agent_engineer, llm_application]
+        experience_level:
+          type: string
+          enum: [intern, new_grad]
+          default: intern
+    ProjectResponse:
+      allOf:
+        - $ref: "#/components/schemas/ProjectCreate"
+        - type: object
+          required: [id, status]
+          properties:
+            id:
+              type: string
+              format: uuid
+            status:
+              type: string
+              enum: [active, archived]
+            latest_match_score:
+              type: integer
+              nullable: true
+    ResumeUploadResponse:
+      type: object
+      required: [resume_id, file_name, status]
+      properties:
+        resume_id:
+          type: string
+          format: uuid
+        file_name:
+          type: string
+        status:
+          type: string
+    ResumeAnalyzeRequest:
+      type: object
+      properties:
+        target_direction:
+          type: string
+          enum: [python_backend, agent_engineer, llm_application]
+    ResumeAnalyzeResponse:
+      type: object
+      required: [detected_direction, skills, weaknesses, suggestions]
+      properties:
+        detected_direction:
+          type: string
+        skills:
+          type: array
+          items:
+            type: string
+        weaknesses:
+          type: array
+          items:
+            type: string
+        suggestions:
+          type: array
+          items:
+            type: string
+        project_deep_dive_points:
+          type: array
+          items:
+            type: string
+    JobDescriptionCreate:
+      type: object
+      required: [raw_text]
+      properties:
+        company:
+          type: string
+          nullable: true
+        position:
+          type: string
+          nullable: true
+        raw_text:
+          type: string
+    JDAnalyzeResponse:
+      type: object
+      required: [direction, required_skills, bonus_skills, interview_topics]
+      properties:
+        direction:
+          type: string
+        required_skills:
+          type: array
+          items:
+            type: string
+        bonus_skills:
+          type: array
+          items:
+            type: string
+        interview_topics:
+          type: array
+          items:
+            type: string
+    MatchReportCreate:
+      type: object
+      required: [resume_id, job_description_id]
+      properties:
+        resume_id:
+          type: string
+          format: uuid
+        job_description_id:
+          type: string
+          format: uuid
+    MatchReportResponse:
+      type: object
+      required: [id, match_score, matched_skills, missing_skills, interview_focus, suggestions]
+      properties:
+        id:
+          type: string
+          format: uuid
+        match_score:
+          type: integer
+          minimum: 0
+          maximum: 100
+        matched_skills:
+          type: array
+          items:
+            type: string
+        missing_skills:
+          type: array
+          items:
+            type: string
+        interview_focus:
+          type: array
+          items:
+            type: string
+        suggestions:
+          type: array
+          items:
+            type: string
+    QuestionGenerateRequest:
+      type: object
+      required: [mode]
+      properties:
+        mode:
+          type: string
+          enum: [python_basic, python_backend_project, fastapi_backend, agent_basic, rag_project_deep_dive]
+        difficulty:
+          type: string
+          enum: [intern, new_grad]
+          default: intern
+        count:
+          type: integer
+          minimum: 1
+          maximum: 20
+          default: 10
+        focus:
+          type: array
+          items:
+            type: string
+    QuestionResponse:
+      type: object
+      required: [id, type, difficulty, question, evaluation_points]
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+        difficulty:
+          type: string
+        question:
+          type: string
+        evaluation_points:
+          type: array
+          items:
+            type: string
+    InterviewCreate:
+      type: object
+      required: [mode]
+      properties:
+        mode:
+          type: string
+          enum: [python_basic, python_backend_project, fastapi_backend, agent_basic, rag_project_deep_dive]
+        difficulty:
+          type: string
+          enum: [intern, new_grad]
+          default: intern
+    InterviewCreateResponse:
+      type: object
+      required: [session_id, status]
+      properties:
+        session_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+    InterviewStartResponse:
+      type: object
+      required: [session_id, first_question]
+      properties:
+        session_id:
+          type: string
+          format: uuid
+        first_question:
+          type: string
+    InterviewAnswerRequest:
+      type: object
+      required: [answer]
+      properties:
+        answer:
+          type: string
+    InterviewAnswerResponse:
+      type: object
+      required: [feedback, next_question, should_continue]
+      properties:
+        feedback:
+          type: string
+        next_question:
+          type: string
+        should_continue:
+          type: boolean
+    InterviewReportResponse:
+      type: object
+      required: [id, overall_score, scores, strengths, weaknesses, recommended_topics]
+      properties:
+        id:
+          type: string
+          format: uuid
+        overall_score:
+          type: integer
+        scores:
+          type: object
+        strengths:
+          type: array
+          items:
+            type: string
+        weaknesses:
+          type: array
+          items:
+            type: string
+        suggestions:
+          type: array
+          items:
+            type: string
+        recommended_topics:
+          type: array
+          items:
+            type: string
+paths:
+  /auth/register:
+    post:
+      security: []
+      summary: Register user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "200":
+          description: Registered user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+  /auth/login:
+    post:
+      security: []
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenResponse"
+  /auth/me:
+    get:
+      summary: Get current user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+  /projects:
+    get:
+      summary: List projects
+      responses:
+        "200":
+          description: Project list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ProjectResponse"
+                  total:
+                    type: integer
+    post:
+      summary: Create project
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectCreate"
+      responses:
+        "200":
+          description: Created project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectResponse"
+  /projects/{project_id}:
+    get:
+      summary: Get project
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectResponse"
+    patch:
+      summary: Update project
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectCreate"
+      responses:
+        "200":
+          description: Updated project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectResponse"
+    delete:
+      summary: Archive project
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Archived
+  /projects/{project_id}/resumes:
+    post:
+      summary: Upload resume
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: Uploaded resume
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResumeUploadResponse"
+  /resumes/{resume_id}/parse:
+    post:
+      summary: Parse resume text
+      parameters:
+        - name: resume_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Parsed resume
+          content:
+            application/json:
+              schema:
+                type: object
+  /resumes/{resume_id}/analyze:
+    post:
+      summary: Analyze resume
+      parameters:
+        - name: resume_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResumeAnalyzeRequest"
+      responses:
+        "200":
+          description: Resume analysis
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResumeAnalyzeResponse"
+  /projects/{project_id}/job-descriptions:
+    post:
+      summary: Create job description
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JobDescriptionCreate"
+      responses:
+        "200":
+          description: Created job description
+          content:
+            application/json:
+              schema:
+                type: object
+  /job-descriptions/{jd_id}/analyze:
+    post:
+      summary: Analyze job description
+      parameters:
+        - name: jd_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: JD analysis
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JDAnalyzeResponse"
+  /projects/{project_id}/match-reports:
+    post:
+      summary: Create match report
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MatchReportCreate"
+      responses:
+        "200":
+          description: Match report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MatchReportResponse"
+  /projects/{project_id}/questions/generate:
+    post:
+      summary: Generate questions
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuestionGenerateRequest"
+      responses:
+        "200":
+          description: Generated questions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  questions:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/QuestionResponse"
+  /projects/{project_id}/interviews:
+    post:
+      summary: Create interview
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InterviewCreate"
+      responses:
+        "200":
+          description: Created interview
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InterviewCreateResponse"
+  /interviews/{session_id}/start:
+    post:
+      summary: Start interview
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: First question
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InterviewStartResponse"
+  /interviews/{session_id}/answers:
+    post:
+      summary: Submit interview answer
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InterviewAnswerRequest"
+      responses:
+        "200":
+          description: Next question
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InterviewAnswerResponse"
+  /interviews/{session_id}/finish:
+    post:
+      summary: Finish interview
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Finished interview
+          content:
+            application/json:
+              schema:
+                type: object
+  /interviews/{session_id}/report:
+    post:
+      summary: Generate interview report
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Interview report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InterviewReportResponse"
+    get:
+      summary: Get interview report
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Interview report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InterviewReportResponse"
