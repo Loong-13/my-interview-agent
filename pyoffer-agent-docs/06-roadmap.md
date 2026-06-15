@@ -23,6 +23,9 @@
 
 功能：
 
+- 个人题库
+- 八股文 / 面经 / 高频题导入
+- 题目标签、方向、难度管理
 - Python 基础专项练习
 - FastAPI 专项练习
 - 数据库专项练习
@@ -33,15 +36,18 @@
 
 ### Phase 3: 资料上传与 RAG
 
-目标：允许用户上传面试资料和项目文档，并让 AI 基于资料提问。
+目标：允许用户上传面试资料、八股文、题库和项目文档，构建自己的向量知识库，并让 AI 基于资料提问。
 
 功能：
 
 - 上传 PDF / DOCX / TXT
+- 粘贴 Markdown / 文本资料
+- 八股文和面试题批量导入
 - 文档解析
 - chunk 切分
 - embedding
 - pgvector 检索
+- 结构化题库抽取
 - 基于资料生成题目
 - 面试中引用资料追问
 
@@ -155,6 +161,7 @@
 - 支持 difficulty
 - 支持 count
 - 调用 QuestionGeneratorAgent
+- 预留知识库检索上下文
 - 保存 questions
 
 验收标准：
@@ -231,6 +238,24 @@
 - 推荐复习主题
 - 改进版回答
 
+### 3.6 个人题库页
+
+- 题库集合列表
+- 新建题库集合
+- 手动新增题目
+- 批量导入八股文 / 面经
+- 题型、难度、标签筛选
+- 题目详情和参考答案展示
+
+### 3.7 知识库页
+
+- 上传 PDF / DOCX / TXT / Markdown
+- 粘贴文本资料
+- 文档解析状态
+- 索引状态
+- 知识库搜索
+- 从知识库生成面试题
+
 ## 4. 推荐开发顺序
 
 ```text
@@ -257,6 +282,28 @@ InterviewerAgent
 EvaluatorAgent
   ↓
 前端联调
+```
+
+知识库增强推荐在基础 MVP 跑通后按以下顺序开发：
+
+```text
+Knowledge collections
+  ↓
+Knowledge documents upload / text paste
+  ↓
+Document parse + chunk
+  ↓
+Embedding + pgvector index
+  ↓
+Question bank manual CRUD
+  ↓
+Question bank import / extract
+  ↓
+KnowledgeRetriever
+  ↓
+Generate questions from knowledge
+  ↓
+Interview / report 引用知识库上下文
 ```
 
 ## 5. MVP 验收标准
@@ -286,6 +333,9 @@ MVP 完成时，必须能完成这个流程：
 
 - Celery 异步任务
 - RAG 文档库
+- 个人题库和知识库
+- pgvector 向量检索
+- embedding 索引任务
 - WebSocket 面试
 - 语音输入输出
 - LLM 成本统计

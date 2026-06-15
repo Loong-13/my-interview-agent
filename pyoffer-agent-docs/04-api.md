@@ -391,6 +391,41 @@ type: optional
 difficulty: optional
 ```
 
+### 基于知识库生成面试题
+
+```http
+POST /api/v1/projects/{project_id}/questions/generate-from-knowledge
+```
+
+请求：
+
+```json
+{
+  "mode": "question_bank_review",
+  "difficulty": "intern",
+  "count": 10,
+  "collection_ids": ["uuid"],
+  "focus": ["FastAPI", "PostgreSQL", "RAG 评估"]
+}
+```
+
+响应：
+
+```json
+{
+  "task_id": "uuid",
+  "status": "pending"
+}
+```
+
+生成逻辑：
+
+1. 读取项目的简历分析、JD 分析和匹配报告。
+2. 组合 `focus`、岗位要求和缺失能力作为检索 query。
+3. 从 `knowledge_chunks` 和 `question_bank_items` 检索相关内容。
+4. 调用 QuestionGeneratorAgent 生成项目训练题。
+5. 保存到 `questions`，并记录来源 chunk 或题库条目。
+
 ## 7. Interviews
 
 ### 创建面试
@@ -541,4 +576,216 @@ GET /api/v1/tasks/{task_id}
   "task_id": "uuid",
   "status": "pending"
 }
+```
+
+## 9. Knowledge Base
+
+### 创建知识库集合
+
+```http
+POST /api/v1/knowledge/collections
+```
+
+请求：
+
+```json
+{
+  "name": "Python 后端八股文",
+  "description": "Python、FastAPI、数据库、Redis 高频面试题"
+}
+```
+
+响应：
+
+```json
+{
+  "id": "uuid",
+  "name": "Python 后端八股文",
+  "visibility": "private"
+}
+```
+
+### 获取知识库集合列表
+
+```http
+GET /api/v1/knowledge/collections
+```
+
+### 上传知识文档
+
+```http
+POST /api/v1/knowledge/collections/{collection_id}/documents
+Content-Type: multipart/form-data
+```
+
+参数：
+
+```text
+file: notes.pdf
+content_type: question_bank
+title: Python 高频八股题
+```
+
+响应：
+
+```json
+{
+  "document_id": "uuid",
+  "status": "uploaded"
+}
+```
+
+### 粘贴文本创建知识文档
+
+```http
+POST /api/v1/knowledge/collections/{collection_id}/documents/text
+```
+
+请求：
+
+```json
+{
+  "title": "FastAPI 常见面试题",
+  "content_type": "question_bank",
+  "raw_text": "Q: FastAPI 的依赖注入是什么？\nA: ..."
+}
+```
+
+响应：
+
+```json
+{
+  "document_id": "uuid",
+  "status": "parsed"
+}
+```
+
+### 解析并索引知识文档
+
+```http
+POST /api/v1/knowledge/documents/{document_id}/index
+```
+
+响应：
+
+```json
+{
+  "task_id": "uuid",
+  "status": "pending"
+}
+```
+
+该异步任务负责：
+
+- 文档解析
+- 文本清洗
+- chunk 切分
+- embedding 生成
+- 写入 pgvector
+- 可选抽取结构化题目
+
+### 检索知识库
+
+```http
+POST /api/v1/knowledge/search
+```
+
+请求：
+
+```json
+{
+  "query": "FastAPI 依赖注入面试题",
+  "collection_ids": ["uuid"],
+  "top_k": 5
+}
+```
+
+响应：
+
+```json
+{
+  "items": [
+    {
+      "chunk_id": "uuid",
+      "document_id": "uuid",
+      "title": "FastAPI 常见面试题",
+      "content": "FastAPI 依赖注入用于...",
+      "score": 0.83,
+      "metadata": {}
+    }
+  ]
+}
+```
+
+## 10. Question Bank
+
+### 创建题库题目
+
+```http
+POST /api/v1/question-bank/items
+```
+
+请求：
+
+```json
+{
+  "collection_id": "uuid",
+  "type": "fastapi_backend",
+  "difficulty": "intern",
+  "question": "FastAPI 的 Depends 是怎么工作的？",
+  "reference_answer": "Depends 会声明依赖函数...",
+  "evaluation_points": ["依赖声明", "生命周期", "复用", "测试替换"],
+  "tags": ["FastAPI", "依赖注入"]
+}
+```
+
+响应：
+
+```json
+{
+  "id": "uuid",
+  "type": "fastapi_backend",
+  "difficulty": "intern"
+}
+```
+
+### 批量导入题库
+
+```http
+POST /api/v1/question-bank/import
+```
+
+请求：
+
+```json
+{
+  "collection_id": "uuid",
+  "format": "qa_markdown",
+  "content": "## FastAPI\nQ: ...\nA: ..."
+}
+```
+
+响应：
+
+```json
+{
+  "task_id": "uuid",
+  "status": "pending"
+}
+```
+
+### 查询题库
+
+```http
+GET /api/v1/question-bank/items
+```
+
+查询参数：
+
+```text
+collection_id: optional
+type: optional
+difficulty: optional
+tag: optional
+keyword: optional
 ```

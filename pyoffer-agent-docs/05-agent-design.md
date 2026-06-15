@@ -109,6 +109,7 @@ MVP 不建议做复杂多智能体自治系统。更稳妥的方式是：
 职责：
 
 - 根据简历、JD、匹配报告生成面试题
+- 根据知识库检索结果和题库条目生成更贴近用户资料的题目
 - 控制题目方向、难度和数量
 - 输出评价要点
 
@@ -121,7 +122,21 @@ MVP 不建议做复杂多智能体自治系统。更稳妥的方式是：
   "count": 10,
   "resume_analysis": {},
   "jd_analysis": {},
-  "match_report": {}
+  "match_report": {},
+  "retrieved_knowledge": [
+    {
+      "chunk_id": "uuid",
+      "content": "FastAPI 依赖注入用于...",
+      "score": 0.83
+    }
+  ],
+  "question_bank_items": [
+    {
+      "id": "uuid",
+      "question": "FastAPI 的 Depends 是怎么工作的？",
+      "reference_answer": "Depends 会声明依赖函数..."
+    }
+  ]
 }
 ```
 
@@ -140,7 +155,56 @@ MVP 不建议做复杂多智能体自治系统。更稳妥的方式是：
 }
 ```
 
-### 2.5 InterviewerAgent
+### 2.5 KnowledgeRetriever
+
+职责：
+
+- 根据训练目标构造检索 query
+- 从 pgvector 检索相关知识片段
+- 从结构化题库检索相关题目
+- 去重、截断和排序检索结果
+- 为 QuestionGeneratorAgent、InterviewerAgent、EvaluatorAgent 提供上下文
+
+输入：
+
+```json
+{
+  "project_context": {
+    "direction": "agent_engineer",
+    "missing_skills": ["RAG 评估", "FastAPI 依赖注入"],
+    "interview_focus": ["RAG 文档切分", "PostgreSQL 索引"]
+  },
+  "mode": "question_bank_review",
+  "difficulty": "intern",
+  "collection_ids": ["uuid"],
+  "top_k": 8
+}
+```
+
+输出：
+
+```json
+{
+  "retrieval_query": "Agent 工程 实习 RAG 评估 FastAPI 依赖注入 PostgreSQL 索引",
+  "knowledge_chunks": [
+    {
+      "chunk_id": "uuid",
+      "content": "RAG 评估可以从检索命中率、召回率和答案相关性评估...",
+      "score": 0.86
+    }
+  ],
+  "question_bank_items": [
+    {
+      "id": "uuid",
+      "type": "rag_project_deep_dive",
+      "question": "如何评估 RAG 系统的检索效果？",
+      "reference_answer": "可以从 hit rate、recall@k、MRR 等指标评估..."
+    }
+  ]
+}
+```
+
+### 2.6 InterviewerAgent
 
 职责：
 
@@ -181,7 +245,7 @@ MVP 不建议做复杂多智能体自治系统。更稳妥的方式是：
 }
 ```
 
-### 2.6 EvaluatorAgent
+### 2.7 EvaluatorAgent
 
 职责：
 
@@ -357,7 +421,58 @@ JD 分析：
 6. 面试轮数足够时可以将 should_continue 设为 false。
 ```
 
-### 3.5 EvaluatorAgent Prompt
+### 3.5 Knowledge-Enhanced QuestionGenerator Prompt
+
+```text
+你是一名熟悉 Python 后端、FastAPI、数据库、RAG 和 Agent 面试的题目生成专家。
+
+你的任务是基于候选人的求职项目、岗位要求、匹配报告，以及用户个人知识库中的资料，生成高质量面试题。
+
+面试模式：
+{{mode}}
+
+难度：
+{{difficulty}}
+
+题目数量：
+{{count}}
+
+简历分析：
+{{resume_analysis}}
+
+JD 分析：
+{{jd_analysis}}
+
+匹配报告：
+{{match_report}}
+
+知识库检索结果：
+{{retrieved_knowledge}}
+
+结构化题库条目：
+{{question_bank_items}}
+
+请严格输出 JSON，不要输出 Markdown。
+
+输出字段：
+- questions: object[]
+  - type
+  - difficulty
+  - question
+  - reference_answer
+  - evaluation_points
+  - source_refs
+
+要求：
+1. 题目必须优先覆盖匹配报告中的 missing_skills 和 interview_focus。
+2. 如果使用知识库资料，source_refs 中记录对应 chunk_id 或 question_bank_item_id。
+3. 不要整段复制知识库原文，要改写成面试官自然会问的问题。
+4. 参考答案必须适合应届生面试表达，不能过度学术化。
+5. 至少 30% 题目要结合用户简历项目或目标 JD。
+6. 如果知识库检索结果不足，可以生成通用题，但 source_refs 为空。
+```
+
+### 3.6 EvaluatorAgent Prompt
 
 ```text
 你是一名技术面试评估官。
@@ -416,4 +531,3 @@ JD 分析：
 - 报告建议必须来自简历、JD 或面试记录
 - Agent 输出存 raw_report，便于排查
 - 面试官只追问，不替用户虚构项目细节
-

@@ -19,6 +19,8 @@ FastAPI Backend
   |-- JD Service
   |-- Match Service
   |-- Question Service
+  |-- Question Bank Service
+  |-- Knowledge Base Service
   |-- Interview Service
   |-- Report Service
   |
@@ -29,6 +31,7 @@ AI Orchestrator
   |-- JDAnalyzerAgent
   |-- MatchAgent
   |-- QuestionGeneratorAgent
+  |-- KnowledgeRetriever
   |-- InterviewerAgent
   |-- EvaluatorAgent
   |
@@ -52,6 +55,9 @@ Redis / RabbitMQ Broker
 Celery Worker
   |
   |-- Resume Parse Task
+  |-- Knowledge Document Parse Task
+  |-- Knowledge Chunk Task
+  |-- Embedding Index Task
   |-- Resume Analyze Task
   |-- JD Analyze Task
   |-- Match Report Task
@@ -188,6 +194,8 @@ backend/
       jd_service.py
       match_service.py
       question_service.py
+      question_bank_service.py
+      knowledge_base_service.py
       interview_service.py
       report_service.py
     agents/
@@ -196,6 +204,7 @@ backend/
       jd_analyzer_agent.py
       match_agent.py
       question_generator_agent.py
+      knowledge_retriever.py
       interviewer_agent.py
       evaluator_agent.py
     prompts/
@@ -203,6 +212,7 @@ backend/
       jd_analysis.md
       match_analysis.md
       question_generation.md
+      knowledge_question_generation.md
       interviewer.md
       evaluator.md
     utils/
@@ -311,6 +321,47 @@ InterviewerAgent 根据回答生成反馈和追问
 EvaluatorAgent 生成报告
 ```
 
+### 6.4 个人题库与知识库流
+
+```text
+用户上传八股文 / 面经 / 面试题 / 项目复习资料
+  ↓
+后端保存原始文件或文本
+  ↓
+Celery 解析文档并提取 raw_text
+  ↓
+按标题、段落、问答格式切分 chunk
+  ↓
+调用 Embedding API 生成向量
+  ↓
+写入 knowledge_chunks.embedding
+  ↓
+可选：抽取结构化题目写入 question_bank_items
+  ↓
+QuestionGeneratorAgent 按简历、JD、匹配报告和知识库检索结果生成题目
+```
+
+知识库用于检索增强，不替代结构化题库。推荐同时保留两层数据：
+
+- `question_bank_items`：结构化面试题，适合列表、复习、收藏、错题本。
+- `knowledge_chunks`：向量化知识片段，适合语义检索、RAG 出题和生成参考答案。
+
+### 6.5 知识库增强出题流
+
+```text
+用户选择方向、难度、题量
+  ↓
+后端读取项目上下文：简历、JD、匹配报告
+  ↓
+构造检索 query：岗位要求 + 缺失能力 + 训练模式
+  ↓
+pgvector 检索相关知识片段和题库条目
+  ↓
+QuestionGeneratorAgent 结合检索结果生成面试题
+  ↓
+保存 questions，并记录来源 knowledge_chunk_ids / question_bank_item_ids
+```
+
 ## 7. 同步与异步边界
 
 ### 同步处理
@@ -328,6 +379,10 @@ EvaluatorAgent 生成报告
 - JD AI 分析
 - 匹配报告生成
 - 面试题批量生成
+- 知识库文档解析
+- 知识 chunk 切分
+- embedding 生成和索引
+- 八股文抽题入库
 - 大文档解析
 - 向量化
 - 复杂报告生成
