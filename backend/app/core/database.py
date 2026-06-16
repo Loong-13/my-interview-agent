@@ -1,3 +1,5 @@
+"""SQLAlchemy 引擎、会话工厂和声明式基类定义。"""
+
 from collections.abc import Generator
 
 from sqlalchemy import create_engine
@@ -7,6 +9,7 @@ from backend.app.core.config import settings
 
 
 class Base(DeclarativeBase):
+    # 所有 ORM 模型都继承这个基类。
     pass
 
 
@@ -15,9 +18,9 @@ SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, expi
 
 
 def get_db() -> Generator[Session, None, None]:
+    # FastAPI 依赖：每个请求打开一个数据库会话，并在结束后关闭。
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
-

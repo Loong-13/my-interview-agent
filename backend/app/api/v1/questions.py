@@ -1,3 +1,5 @@
+"""面试题生成与列表接口。"""
+
 import uuid
 
 from fastapi import APIRouter, Depends
@@ -24,6 +26,7 @@ def generate_questions(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> TaskAccepted:
+    # 题目生成在 Worker 中执行，客户端这里只拿到任务句柄。
     project = get_project_for_user(db, project_id, current_user.id)
     celery_result = generate_questions_task.delay(
         str(project.id),
@@ -48,6 +51,7 @@ def list_questions(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> QuestionListResponse:
+    # 最新题目排在前面，符合常见复盘浏览顺序。
     project = get_project_for_user(db, project_id, current_user.id)
     questions = db.scalars(
         select(Question).where(Question.project_id == project.id).order_by(Question.created_at.desc())
@@ -55,4 +59,3 @@ def list_questions(
     return QuestionListResponse(
         questions=[QuestionResponse.model_validate(question) for question in questions]
     )
-

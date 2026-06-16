@@ -1,3 +1,5 @@
+"""密码哈希与 JWT 令牌辅助函数。"""
+
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
@@ -19,6 +21,7 @@ def get_password_hash(password: str) -> str:
 
 
 def create_access_token(subject: str, expires_delta: timedelta | None = None) -> str:
+    # 将用户 id 放入 JWT 的 subject 字段，并设置标准过期时间。
     expire = datetime.now(UTC) + (
         expires_delta or timedelta(minutes=settings.access_token_expire_minutes)
     )
@@ -28,4 +31,3 @@ def create_access_token(subject: str, expires_delta: timedelta | None = None) ->
 
 def decode_access_token(token: str) -> dict[str, Any]:
     return jwt.decode(token, settings.app_secret_key, algorithms=[ALGORITHM])
-

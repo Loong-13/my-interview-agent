@@ -1,3 +1,5 @@
+"""简历上传、解析和分析接口。"""
+
 import uuid
 from pathlib import Path
 
@@ -27,6 +29,7 @@ def upload_resume(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> ResumeUploadResponse:
+    # 只允许支持的文档格式进入处理流程。
     get_project_for_user(db, project_id, current_user.id)
     suffix = Path(file.filename or "").suffix.lower()
     if suffix not in {".pdf", ".docx", ".txt"}:
@@ -60,6 +63,7 @@ def parse_resume(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> TaskAccepted:
+    # 解析可能涉及文件 I/O 或类似 OCR 的耗时操作，因此交给 Celery 处理。
     resume = db.scalar(select(Resume).where(Resume.id == resume_id))
     if resume is None:
         raise AppError("RESUME_NOT_FOUND", "Resume not found", status_code=404)
@@ -82,6 +86,7 @@ def analyze_resume(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> TaskAccepted:
+    # 分析时可传入方向提示，用于后续定制 Agent 提示词。
     resume = db.scalar(select(Resume).where(Resume.id == resume_id))
     if resume is None:
         raise AppError("RESUME_NOT_FOUND", "Resume not found", status_code=404)
@@ -104,6 +109,7 @@ def get_resume(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> ResumeParseResponse:
+    # 返回解析文本前复用项目归属校验。
     resume = db.scalar(select(Resume).where(Resume.id == resume_id))
     if resume is None:
         raise AppError("RESUME_NOT_FOUND", "Resume not found", status_code=404)

@@ -1,3 +1,5 @@
+"""面试会话接口与报告生成触发器。"""
+
 import uuid
 from datetime import UTC, datetime
 
@@ -34,6 +36,7 @@ def create_interview(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> InterviewCreateResponse:
+    # 创建一个绑定到用户项目的面试会话。
     project = get_project_for_user(db, project_id, current_user.id)
     session = InterviewSession(
         project_id=project.id,
@@ -53,6 +56,7 @@ def start_interview(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> InterviewStartResponse:
+    # 启动会话时记录开始时间，并写入第一条面试官提问。
     session = _get_session_for_user(db, session_id, current_user.id)
     session.status = "running"
     session.started_at = datetime.now(UTC)
@@ -70,6 +74,7 @@ def submit_answer(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> InterviewAnswerResponse:
+    # 当前实现会保存对话消息，并返回固定的追问占位逻辑。
     session = _get_session_for_user(db, session_id, current_user.id)
     candidate_message = InterviewMessage(
         session_id=session.id,
@@ -99,6 +104,7 @@ def finish_interview(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> dict[str, str]:
+    # 标记会话完成，便于后续报告生成使用完整 transcript。
     session = _get_session_for_user(db, session_id, current_user.id)
     session.status = "completed"
     session.ended_at = datetime.now(UTC)
@@ -112,6 +118,7 @@ def generate_report(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> TaskAccepted:
+    # 报告生成可能调用 LLM，因此有意设计为异步任务。
     session = _get_session_for_user(db, session_id, current_user.id)
     celery_result = generate_interview_report_task.delay(str(session.id))
     task = create_async_task(
@@ -130,6 +137,7 @@ def get_messages(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> list[InterviewMessageResponse]:
+    # 前端通过持久化消息回放完整对话。
     session = _get_session_for_user(db, session_id, current_user.id)
     messages = db.scalars(
         select(InterviewMessage)
@@ -145,6 +153,7 @@ def get_report(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> InterviewReport:
+    # 报告查询和生成分离，方便客户端轮询生成结果。
     session = _get_session_for_user(db, session_id, current_user.id)
     report = db.scalar(select(InterviewReport).where(InterviewReport.session_id == session.id))
     if report is None:
@@ -153,6 +162,7 @@ def get_report(
 
 
 def _get_session_for_user(db: Session, session_id: uuid.UUID, user_id: uuid.UUID) -> InterviewSession:
+    # 复用项目归属校验，防止跨账号访问面试会话。
     session = db.get(InterviewSession, session_id)
     if session is None:
         raise AppError("INTERVIEW_NOT_FOUND", "Interview session not found", status_code=404)

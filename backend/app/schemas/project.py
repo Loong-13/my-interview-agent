@@ -1,3 +1,5 @@
+"""项目请求与响应 Schema。"""
+
 import uuid
 
 from pydantic import BaseModel, Field
@@ -6,6 +8,7 @@ from backend.app.schemas.common import Direction, ExperienceLevel, ORMModel, Pro
 
 
 class ProjectCreate(BaseModel):
+    # 创建项目只要求前端初始可编辑的字段。
     name: str = Field(min_length=1, max_length=200)
     target_company: str | None = None
     target_role: str = Field(min_length=1, max_length=200)
@@ -14,6 +17,7 @@ class ProjectCreate(BaseModel):
 
 
 class ProjectUpdate(BaseModel):
+    # 所有字段都是可选的，让 PATCH 保持局部更新和幂等。
     name: str | None = Field(default=None, min_length=1, max_length=200)
     target_company: str | None = None
     target_role: str | None = Field(default=None, min_length=1, max_length=200)
@@ -23,6 +27,7 @@ class ProjectUpdate(BaseModel):
 
 
 class ProjectResponse(ORMModel):
+    # 响应模型对应数据库记录，并额外包含计算得到的分数。
     id: uuid.UUID
     name: str
     target_company: str | None
@@ -36,4 +41,3 @@ class ProjectResponse(ORMModel):
 class ProjectListResponse(BaseModel):
     items: list[ProjectResponse]
     total: int
-

@@ -1,3 +1,5 @@
+"""岗位描述相关接口。"""
+
 import uuid
 
 from fastapi import APIRouter, Depends
@@ -23,6 +25,7 @@ def create_job_description(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> JobDescription:
+    # API 层只关注校验与持久化交接。
     get_project_for_user(db, project_id, current_user.id)
     jd = JobDescription(project_id=project_id, **payload.model_dump())
     db.add(jd)
@@ -37,6 +40,7 @@ def analyze_job_description(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> TaskAccepted:
+    # JD 分析异步执行，客户端通过任务状态轮询结果。
     jd = db.get(JobDescription, jd_id)
     if jd is None:
         from app.core.exceptions import AppError
@@ -52,4 +56,3 @@ def analyze_job_description(
         task_type="jd.analyze",
     )
     return TaskAccepted(task_id=task.id, status=task.status)
-

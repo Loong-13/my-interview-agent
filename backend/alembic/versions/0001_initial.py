@@ -9,6 +9,7 @@ from collections.abc import Sequence
 
 import sqlalchemy as sa
 from alembic import op
+from pgvector import Vector
 from sqlalchemy.dialects import postgresql
 
 revision: str = "0001_initial"
@@ -186,6 +187,40 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_match_reports_project_id"), "match_reports", ["project_id"], unique=False)
+
+    op.create_table(
+        "documents",
+        sa.Column("project_id", postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column("file_name", sa.String(length=255), nullable=True),
+        sa.Column("file_url", sa.String(length=500), nullable=True),
+        sa.Column("file_type", sa.String(length=50), nullable=True),
+        sa.Column("raw_text", sa.Text(), nullable=True),
+        sa.Column("status", sa.String(length=50), nullable=False,default='uploaded'),
+        sa.Column("id", postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
+        sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
+        sa.ForeignKeyConstraint(["project_id"], ["projects.id"]),
+        sa.PrimaryKeyConstraint("id"),
+    )
+
+    op.create_index(op.f("ix_documents_project_id"), "documents", ["project_id"], unique=False)
+
+    op.create_table(
+        "document_chunks",
+        sa.Column("document_id", postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column("project_id", postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column("document_id", postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column("chunk_index", sa.Integer(), nullable=False),
+        sa.Column("content", sa.Text(), nullable=False),
+        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
+        sa.Column("id", postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column("metadata", postgresql.JSONB(astext_type=sa.Text()), nullable=True),
+        sa.Column("embedding", Vector(1536), nullable=True),
+        sa.ForeignKeyConstraint(["document_id"], ["documents.id"]),
+        sa.ForeignKeyConstraint(["project_id"], ["projects.id"]),
+        sa.PrimaryKeyConstraint("id"),
+    )
+    op.create_index(op.f("ix_document_chunks_project_id"), "document_chunks", ["project_id"], unique=False)
 
 
 def downgrade() -> None:

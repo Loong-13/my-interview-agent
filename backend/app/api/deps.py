@@ -1,3 +1,5 @@
+"""认证与请求级资源相关的 FastAPI 依赖。"""
+
 import uuid
 
 from fastapi import Depends
@@ -18,6 +20,7 @@ def get_current_user(
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
     db: Session = Depends(get_db),
 ) -> User:
+    # 要求请求携带 Authorization 头，并把令牌解析成真实用户记录。
     if credentials is None:
         raise AppError("UNAUTHORIZED", "Authentication required", status_code=401)
 
@@ -31,4 +34,3 @@ def get_current_user(
     if user is None:
         raise AppError("UNAUTHORIZED", "User not found", status_code=401)
     return user
-

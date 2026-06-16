@@ -1,3 +1,5 @@
+"""匹配报告生成接口。"""
+
 import uuid
 
 from fastapi import APIRouter, Depends
@@ -25,6 +27,7 @@ def create_match_report(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> TaskAccepted:
+    # 开始评分前，简历和 JD 必须都属于同一个项目。
     project = get_project_for_user(db, project_id, current_user.id)
     resume = db.get(Resume, payload.resume_id)
     jd = db.get(JobDescription, payload.job_description_id)
@@ -42,4 +45,3 @@ def create_match_report(
         task_type="match_report.generate",
     )
     return TaskAccepted(task_id=task.id, status=task.status)
-

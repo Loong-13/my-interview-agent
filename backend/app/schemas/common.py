@@ -1,3 +1,5 @@
+"""共享枚举与响应基础模型。"""
+
 import uuid
 from datetime import datetime
 from enum import StrEnum
@@ -49,4 +51,3 @@ class TaskAccepted(ORMModel):
 class TimestampedModel(ORMModel):
     created_at: datetime
     updated_at: datetime
-

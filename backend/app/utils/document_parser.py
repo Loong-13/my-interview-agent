@@ -1,3 +1,5 @@
+"""从支持的简历文件格式中提取纯文本。"""
+
 from pathlib import Path
 
 import fitz
@@ -5,6 +7,7 @@ from docx import Document
 
 
 def parse_document_text(path: str, file_type: str | None) -> str:
+    # 先统一文件类型，调用方既可以显式传入，也可以从后缀推断。
     file_path = Path(path)
     normalized_type = (file_type or file_path.suffix.removeprefix(".")).lower()
 
@@ -19,6 +22,7 @@ def parse_document_text(path: str, file_type: str | None) -> str:
 
 
 def _parse_pdf(path: Path) -> str:
+    # PyMuPDF 按页返回文本，这里先收集再拼接。
     parts: list[str] = []
     with fitz.open(path) as doc:
         for page in doc:
@@ -27,6 +31,6 @@ def _parse_pdf(path: Path) -> str:
 
 
 def _parse_docx(path: Path) -> str:
+    # DOCX 解析保留段落顺序，并去掉格式只保留文本。
     document = Document(path)
     return "\n".join(paragraph.text for paragraph in document.paragraphs).strip()
-
