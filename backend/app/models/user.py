@@ -15,4 +15,7 @@ class User(UUIDPrimaryKeyMixin, TimestampMixin, Base):
 
     projects = relationship("Project", back_populates="user")
     async_tasks = relationship("AsyncTask", back_populates="user")
-
+    knowledge_collections = relationship("KnowledgeCollection", back_populates="user")
+    knowledge_documents = relationship("KnowledgeDocument", back_populates="user")
+    knowledge_chunks = relationship("KnowledgeChunk", back_populates="user")
+    question_bank_items = relationship("QuestionBankItem", back_populates="user")

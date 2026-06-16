@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:16
+    image: pgvector/pgvector:pg16
     environment:
       POSTGRES_USER: pyoffer
       POSTGRES_PASSWORD: pyoffer
@@ -43,4 +43,3 @@ services:
 
 volumes:
   postgres_data:
-

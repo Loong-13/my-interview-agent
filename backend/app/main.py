@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 
-from app.api.v1.router import api_router
-from app.core.config import settings
-from app.core.exceptions import register_exception_handlers
+from backend.app.api.v1.router import api_router
+from backend.app.core.config import settings
+from backend.app.core.exceptions import register_exception_handlers
 
 
 def create_app() -> FastAPI:

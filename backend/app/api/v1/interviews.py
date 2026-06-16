@@ -20,9 +20,9 @@ from backend.app.schemas.interview import (
     InterviewReportResponse,
     InterviewStartResponse,
 )
-from app.services.project_service import get_project_for_user
-from app.services.task_service import create_async_task
-from app.workers.tasks.interview_tasks import generate_interview_report_task
+from backend.app.services.project_service import get_project_for_user
+from backend.app.services.task_service import create_async_task
+from backend.app.workers.tasks.interview_tasks import generate_interview_report_task
 
 router = APIRouter()
 
