@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from backend.app.agents.interviewer_agent import InterviewerAgent
 from backend.app.api.deps import get_current_user
 from backend.app.core.database import get_db
 from backend.app.core.exceptions import AppError
@@ -60,7 +61,9 @@ def start_interview(
     session = _get_session_for_user(db, session_id, current_user.id)
     session.status = "running"
     session.started_at = datetime.now(UTC)
-    first_question = "请先介绍一下你做过的一个 Python 后端或 Agent 项目。"
+
+    # 调用 InterviewerAgent 生成第一道题
+    first_question = _generate_opening_question(session)
     message = InterviewMessage(session_id=session.id, role="interviewer", content=first_question)
     db.add(message)
     db.commit()
@@ -74,27 +77,59 @@ def submit_answer(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> InterviewAnswerResponse:
-    # 当前实现会保存对话消息，并返回固定的追问占位逻辑。
+    # 保存候选人回答，调用 InterviewerAgent 生成下一题。
     session = _get_session_for_user(db, session_id, current_user.id)
+
+    # 1. 保存候选人消息
     candidate_message = InterviewMessage(
         session_id=session.id,
         role="candidate",
         content=payload.answer,
     )
-    feedback = "回答已记录。当前是占位面试官逻辑，后续会接入 InterviewerAgent。"
-    next_question = "请进一步说明这个项目中的技术难点，以及你具体如何解决。"
+    db.add(candidate_message)
+
+    # 2. 读取完整消息历史
+    history_messages = db.scalars(
+        select(InterviewMessage)
+        .where(InterviewMessage.session_id == session.id)
+        .order_by(InterviewMessage.created_at.asc())
+    ).all()
+
+    history = [{"role": m.role, "content": m.content} for m in history_messages]
+    # 加入刚保存的候选人回答
+    history.append({"role": "candidate", "content": payload.answer})
+
+    # 3. 调用 InterviewerAgent
+    try:
+        agent = InterviewerAgent(
+            mode=session.mode,
+            difficulty=session.difficulty,
+            history_messages=history,
+        )
+        result = agent.analyze()
+        feedback = result.get("feedback", "请继续。")
+        next_question = result.get("next_question", "请进一步说明你的项目经验。")
+        should_continue = result.get("should_continue", True)
+    except Exception:
+        # LLM 调用失败时降级为兜底追问
+        feedback = "回答已记录。"
+        next_question = "请进一步说明这个项目中的技术难点，以及你具体如何解决。"
+        should_continue = True
+
+    # 4. 保存面试官回复
     interviewer_message = InterviewMessage(
         session_id=session.id,
         role="interviewer",
         content=next_question,
-        feedback_json={"feedback": feedback, "prompt_version": "interviewer_stub_v1"},
+        feedback_json={"feedback": feedback},
     )
-    db.add_all([candidate_message, interviewer_message])
+    db.add(interviewer_message)
     db.commit()
+
     return InterviewAnswerResponse(
         feedback=feedback,
         next_question=next_question,
-        should_continue=True,
+        should_continue=should_continue,
     )
 
 
@@ -169,3 +204,16 @@ def _get_session_for_user(db: Session, session_id: uuid.UUID, user_id: uuid.UUID
     get_project_for_user(db, session.project_id, user_id)
     return session
 
+
+def _generate_opening_question(session: InterviewSession) -> str:
+    """调用 InterviewerAgent 生成面试开场问题。"""
+    try:
+        agent = InterviewerAgent(
+            mode=session.mode,
+            difficulty=session.difficulty,
+            history_messages=[],
+        )
+        result = agent.analyze()
+        return result.get("next_question", "请介绍一下你做过的 Python 后端或 Agent 项目中印象最深的一个。")
+    except Exception:
+        return "请先介绍一下你做过的 Python 后端或 Agent 项目中印象最深的一个。"

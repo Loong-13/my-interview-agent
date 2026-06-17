@@ -1,17 +1,18 @@
-"""为未来的简历分析 Agent 预留位置。"""
-import json
-import dashscope
-import os
-resume_prompt="""
-你是一名熟悉 Python 后端和 AI Agent 应用开发岗位的简历评审专家。
+"""ResumeAgent：分析简历文本，输出结构化分析结果。"""
+
+from typing import Any
+
+from backend.app.agents.base import BaseLLMAgent
+
+RESUME_PROMPT = """你是一名熟悉 Python 后端和 AI Agent 应用开发岗位的简历评审专家。
 
 你的任务是分析应届生简历，判断其是否适合目标方向。
 
 目标方向：
-{{target_direction}}
+{target_direction}
 
 简历文本：
-{{resume_text}}
+{resume_text}
 
 请严格输出 JSON，不要输出 Markdown。
 
@@ -31,32 +32,37 @@ resume_prompt="""
 5. Python 后端项目重点检查接口设计、数据库、缓存、异步任务、部署。
 """
 
-class ResumeAgent:
-    def __init__(self, resume_text: str, target_direction: str):
+
+class ResumeAgent(BaseLLMAgent):
+    """简历分析 Agent，调用 LLM 对简历文本做结构化分析。"""
+
+    def __init__(
+        self,
+        resume_text: str,
+        target_direction: str = "agent_engineer",
+        model: str = "qwen3-max-latest",
+        api_key: str | None = None,
+    ):
+        super().__init__(model=model, api_key=api_key)
         self.resume_text = resume_text
         self.target_direction = target_direction
 
-    def ResumeAnalyze(self) -> dict:
-        """分析简历，返回 JSON 结果。"""
-        prompt = resume_prompt.format(
-            resume_text=self.resume_text,
+    def _build_prompt(self) -> str:
+        return RESUME_PROMPT.format(
             target_direction=self.target_direction,
+            resume_text=self.resume_text,
         )
-        messages = [
-            {"role": "system", "content": prompt},
-        ]
-        response=dashscope.Generation.call(
-            model="Qwen3.7-max",
-            api_key=os.getenv("DASHSCOPE_API_KEY"),
-            messages=messages,
-            temperature=0,
-            result_format="message",
-            response_format={"type": "json_object"}
+
+    def _validate_output(self, result: dict[str, Any]) -> None:
+        self._validate_direction(result, field="detected_direction")
+        self._ensure_array_fields(
+            result,
+            ("skills", "project_deep_dive_points", "weaknesses", "suggestions"),
         )
-        content=response.output.choices[0].message.content
-        return json.loads(content)
+        if "projects" not in result or not isinstance(result.get("projects"), list):
+            result["projects"] = []
 
     def judge_candidate(self) -> bool:
-        """判断简历是否符合目标方向。"""
-        result = self.analyze()
-        return result["detected_direction"] == self.target_direction
+        """判断简历方向是否与目标方向匹配。"""
+        analysis = self.analyze()
+        return analysis.get("detected_direction") == self.target_direction
