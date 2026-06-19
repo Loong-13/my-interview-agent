@@ -23,10 +23,10 @@ class Settings(BaseSettings):
     upload_dir: str = "./uploads"
     max_upload_size_mb: int = 10
 
-    llm_base_url: str = "https://api.example.com/v1"
+    llm_base_url: str = "https://dashscope.aliyuncs.com/compatible-mode/v1"
     llm_api_key: str = Field(default="replace_me", repr=False)
-    llm_model: str = "gpt-4.1-mini"
-    embedding_model: str = "text-embedding-3-small"
+    llm_model: str = "qwen3-max-latest"
+    embedding_model: str = "text-embedding-v3"
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 

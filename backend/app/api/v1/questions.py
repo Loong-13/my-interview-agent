@@ -11,10 +11,16 @@ from backend.app.core.database import get_db
 from backend.app.models.question import Question
 from backend.app.models.user import User
 from backend.app.schemas.common import TaskAccepted
-from backend.app.schemas.question import QuestionGenerateRequest, QuestionListResponse, QuestionResponse
+from backend.app.schemas.question import (
+    QuestionGenerateFromKnowledgeRequest,
+    QuestionGenerateRequest,
+    QuestionListResponse,
+    QuestionResponse,
+)
+from backend.app.services.knowledge_base_service import ensure_collections_belong_to_user
 from backend.app.services.project_service import get_project_for_user
 from backend.app.services.task_service import create_async_task
-from backend.app.workers.tasks.question_tasks import generate_questions_task
+from backend.app.workers.tasks.question_tasks import generate_questions_from_knowledge_task, generate_questions_task
 
 router = APIRouter()
 
@@ -41,6 +47,35 @@ def generate_questions(
         project_id=project.id,
         celery_task_id=celery_result.id,
         task_type="questions.generate",
+    )
+    return TaskAccepted(task_id=task.id, status=task.status)
+
+
+@router.post("/projects/{project_id}/questions/generate-from-knowledge", response_model=TaskAccepted)
+def generate_questions_from_knowledge(
+    project_id: uuid.UUID,
+    payload: QuestionGenerateFromKnowledgeRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> TaskAccepted:
+    # 知识库增强出题先校验集合归属，再异步检索和生成。
+    project = get_project_for_user(db, project_id, current_user.id)
+    ensure_collections_belong_to_user(db, collection_ids=payload.collection_ids, user_id=current_user.id)
+    celery_result = generate_questions_from_knowledge_task.delay(
+        str(project.id),
+        str(current_user.id),
+        payload.mode.value,
+        payload.difficulty,
+        payload.count,
+        [str(collection_id) for collection_id in payload.collection_ids],
+        payload.focus,
+    )
+    task = create_async_task(
+        db,
+        user_id=current_user.id,
+        project_id=project.id,
+        celery_task_id=celery_result.id,
+        task_type="questions.generate_from_knowledge",
     )
     return TaskAccepted(task_id=task.id, status=task.status)
 
