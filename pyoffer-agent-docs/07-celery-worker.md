@@ -205,7 +205,7 @@ interview_report.generate
 3. 创建 interview_reports 记录
 4. 更新 interview_sessions.status 为 completed
 
-### 4.7 文档索引任务
+### 4.7 项目文档索引任务
 
 Phase 3 使用。
 
@@ -229,6 +229,67 @@ document.index
 2. chunk 切分
 3. 调用 Embedding API
 4. 写入 document_chunks
+
+### 4.8 个人知识库文档索引任务
+
+任务名：
+
+```text
+knowledge_document.index
+```
+
+输入：
+
+```json
+{
+  "document_id": "uuid",
+  "extract_questions": true
+}
+```
+
+处理：
+
+1. 校验 knowledge_document 存在。
+2. 如果文档来自上传文件，解析 PDF / DOCX / TXT / Markdown。
+3. 清洗文本并写入 knowledge_documents.raw_text。
+4. 按标题、段落和 Q/A 边界切分 chunk。
+5. 调用 Embedding API 批量生成向量。
+6. 写入 knowledge_chunks。
+7. 可选抽取 question_bank_items。
+8. 更新 knowledge_documents.status 为 indexed。
+9. 更新 async_tasks.result_json，返回 chunk_count 和 question_count。
+
+失败：
+
+- 更新 knowledge_documents.status 为 failed。
+- 写入 parse_error 或 async_tasks.error_message。
+- 只对 Embedding API 超时、限流、5xx 做有限重试。
+
+### 4.9 题库批量导入任务
+
+任务名：
+
+```text
+question_bank.import
+```
+
+输入：
+
+```json
+{
+  "collection_id": "uuid",
+  "format": "qa_markdown",
+  "content": "Q: ...\nA: ..."
+}
+```
+
+处理：
+
+1. 解析 Markdown / 纯文本 Q/A。
+2. 生成 question_bank_items。
+3. 拼接题目、答案摘要和标签生成 embedding_text。
+4. 调用 Embedding API。
+5. 写入 question_bank_item_embeddings。
 
 ## 5. 任务状态设计
 
@@ -401,4 +462,3 @@ retry_jitter: true
 5. interview_report.generate
 
 文本面试中的单轮追问可以先同步，因为用户本来就在等待下一题。等后面做实时语音或并发变高，再考虑 WebSocket + 后台任务。
-

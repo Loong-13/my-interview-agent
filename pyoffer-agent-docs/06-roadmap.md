@@ -51,6 +51,8 @@
 - 基于资料生成题目
 - 面试中引用资料追问
 
+详细开发方案见 [08-personal-knowledge-base.md](./08-personal-knowledge-base.md)。
+
 ### Phase 4: 语音面试
 
 目标：把文本面试升级为语音面试。
@@ -305,6 +307,15 @@ Generate questions from knowledge
   ↓
 Interview / report 引用知识库上下文
 ```
+
+个人知识库一期验收标准：
+
+1. 用户可以创建知识库集合。
+2. 用户可以上传 PDF / DOCX / TXT / Markdown 或粘贴文本。
+3. 后台任务可以完成解析、切分、向量化和索引。
+4. 用户可以按 query 检索自己的知识库。
+5. 用户可以手动新增或批量导入题库题目。
+6. 项目出题可以选择知识库集合并记录题目来源。
 
 ## 5. MVP 验收标准
 

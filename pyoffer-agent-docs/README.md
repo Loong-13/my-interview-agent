@@ -21,6 +21,7 @@ PyOffer Agent 是一个面向 **Python 后端 / AI Agent 应用开发应届生**
 - [05-agent-design.md](./05-agent-design.md): AI Agent 与 Prompt 设计
 - [06-roadmap.md](./06-roadmap.md): 开发路线图与任务拆分
 - [07-celery-worker.md](./07-celery-worker.md): Celery 异步任务设计
+- [08-personal-knowledge-base.md](./08-personal-knowledge-base.md): 个人知识库搭建开发文档
 - [openapi.yaml](./openapi.yaml): OpenAPI 3.1 草案
 
 ## 推荐 MVP 技术栈
