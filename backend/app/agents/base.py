@@ -14,6 +14,8 @@ from typing import Any
 
 import dashscope
 
+from app.core.config import settings
+
 logger = logging.getLogger(__name__)
 
 
@@ -27,9 +29,9 @@ class BaseLLMAgent(ABC):
     # 子类覆盖：合法的方向枚举值
     VALID_DIRECTIONS: set[str] = {"python_backend", "agent_engineer", "llm_application", "unknown"}
 
-    def __init__(self, model: str = "qwen3-max-latest", api_key: str | None = None):
-        self.model = model
-        self.api_key = api_key or os.getenv("DASHSCOPE_API_KEY")
+    def __init__(self, model: str | None = None, api_key: str | None = None):
+        self.model = model or settings.llm_model
+        self.api_key = api_key or settings.llm_api_key or os.getenv("LLM_API_KEY")
         self._label = self.__class__.__name__
 
     # ── 子类必须实现 ──────────────────────────────────
@@ -60,7 +62,20 @@ class BaseLLMAgent(ABC):
             result_format="message",
             response_format={"type": "json_object"},
         )
-        content = response.output.choices[0].message.content
+        status_code = getattr(response, "status_code", None)
+        code = getattr(response, "code", None)
+        message = getattr(response, "message", None)
+        if status_code and status_code >= 400:
+            raise RuntimeError(f"LLM call failed ({status_code} {code}): {message}")
+
+        output = getattr(response, "output", None)
+        choices = getattr(output, "choices", None)
+        if not choices:
+            raise RuntimeError(
+                f"LLM returned no choices (status={status_code}, code={code}, message={message})"
+            )
+
+        content = choices[0].message.content
         if content is None:
             raise RuntimeError("LLM returned empty response")
         return content

@@ -19,7 +19,7 @@
     <TaskStatus
       :task-id="refs.lastTaskId"
       title="最近任务"
-      @success="loadProject"
+      @success="handleTaskSuccess"
       @failed="loadProject"
     />
 
@@ -28,7 +28,7 @@
         <h2 class="panel-title">匹配概览</h2>
         <div class="metric">
           <span class="muted">最近匹配分</span>
-          <strong>{{ project?.latest_match_score ?? '-' }}</strong>
+          <strong>{{ project?.latest_match_score ?? (hasMatchReport ? '已生成' : '-') }}</strong>
         </div>
       </section>
 
@@ -88,15 +88,37 @@ const projectId = route.params.id.toString()
 const project = ref(null)
 const refs = computed(() => drafts.ensure(projectId))
 
+const hasBackendMatchScore = computed(
+  () => project.value?.latest_match_score !== null && project.value?.latest_match_score !== undefined,
+)
+const hasQuestions = computed(() => refs.value.questionsGenerated)
+const hasMatchReport = computed(() => refs.value.matchReportGenerated || hasBackendMatchScore.value || hasQuestions.value)
+const hasInterview = computed(() => refs.value.interviewStarted || Boolean(refs.value.lastSessionId))
+
 const stepActive = computed(() => {
   if (!refs.value.resumeId) return 0
   if (!refs.value.jdId) return 1
-  if (!project.value?.latest_match_score) return 2
-  return 3
+  if (!hasMatchReport.value) return 2
+  if (!hasQuestions.value) return 3
+  if (!hasInterview.value) return 4
+  return 5
 })
 
 async function loadProject() {
   project.value = await projectApi.get(projectId)
+}
+
+async function handleTaskSuccess(task) {
+  if (task.task_type === 'match_report.generate') {
+    drafts.patch(projectId, { matchReportGenerated: true })
+  }
+  if (task.task_type?.startsWith('questions.')) {
+    drafts.patch(projectId, { matchReportGenerated: true, questionsGenerated: true })
+  }
+  if (task.task_type === 'interview_report.generate') {
+    drafts.patch(projectId, { interviewStarted: true })
+  }
+  await loadProject()
 }
 
 onMounted(loadProject)

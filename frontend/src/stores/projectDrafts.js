@@ -2,6 +2,20 @@ import { defineStore } from 'pinia'
 
 const storageKey = 'pyoffer_project_refs'
 
+function defaultProjectRef() {
+  return {
+    resumeId: '',
+    resumeFileName: '',
+    jdId: '',
+    jdTitle: '',
+    lastTaskId: '',
+    lastSessionId: '',
+    matchReportGenerated: false,
+    questionsGenerated: false,
+    interviewStarted: false,
+  }
+}
+
 export const useProjectDraftsStore = defineStore('projectDrafts', {
   state: () => ({
     refs: JSON.parse(localStorage.getItem(storageKey) || '{}'),
@@ -11,16 +25,7 @@ export const useProjectDraftsStore = defineStore('projectDrafts', {
       localStorage.setItem(storageKey, JSON.stringify(this.refs))
     },
     ensure(projectId) {
-      if (!this.refs[projectId]) {
-        this.refs[projectId] = {
-          resumeId: '',
-          resumeFileName: '',
-          jdId: '',
-          jdTitle: '',
-          lastTaskId: '',
-          lastSessionId: '',
-        }
-      }
+      this.refs[projectId] = { ...defaultProjectRef(), ...(this.refs[projectId] || {}) }
       return this.refs[projectId]
     },
     patch(projectId, payload) {

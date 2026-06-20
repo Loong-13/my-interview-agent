@@ -160,8 +160,9 @@ def search_chunks(
     # MVP 先在应用层做相似度排序，避免测试环境必须依赖 pgvector 运算符。
     scored: list[tuple[KnowledgeChunk, float]] = []
     for chunk in db.scalars(stmt).all():
-        if chunk.embedding:
-            scored.append((chunk, cosine_similarity(query_embedding, chunk.embedding)))
+        if chunk.embedding is not None:
+            embedding = [float(value) for value in chunk.embedding]
+            scored.append((chunk, cosine_similarity(query_embedding, embedding)))
     scored.sort(key=lambda item: item[1], reverse=True)
     return scored[:top_k]
 

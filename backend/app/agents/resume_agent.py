@@ -40,7 +40,7 @@ class ResumeAgent(BaseLLMAgent):
         self,
         resume_text: str,
         target_direction: str = "agent_engineer",
-        model: str = "qwen3-max-latest",
+        model: str | None = None,
         api_key: str | None = None,
     ):
         super().__init__(model=model, api_key=api_key)

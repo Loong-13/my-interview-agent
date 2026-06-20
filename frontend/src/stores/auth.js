@@ -26,8 +26,8 @@ export const useAuthStore = defineStore('auth', {
     async login(payload) {
       const token = await authApi.login(payload)
       this.token = token.access_token
-      await this.fetchMe()
       this.persist()
+      await this.fetchMe()
     },
     async register(payload) {
       await authApi.register(payload)

@@ -67,7 +67,7 @@ class QuestionGeneratorAgent(BaseLLMAgent):
         match_report: dict[str, Any] | None = None,
         retrieved_knowledge: list[dict[str, Any]] | None = None,
         question_bank_items: list[dict[str, Any]] | None = None,
-        model: str = "qwen3-max-latest",
+        model: str | None = None,
         api_key: str | None = None,
     ):
         super().__init__(model=model, api_key=api_key)

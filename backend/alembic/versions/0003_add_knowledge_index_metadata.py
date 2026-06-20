@@ -1,6 +1,6 @@
 """add knowledge index metadata
 
-Revision ID: 0003_add_knowledge_index_metadata
+Revision ID: 0003_knowledge_index_meta
 Revises: 0002_add_knowledge_base
 Create Date: 2026-06-19
 """
@@ -10,7 +10,7 @@ from collections.abc import Sequence
 import sqlalchemy as sa
 from alembic import op
 
-revision: str = "0003_add_knowledge_index_metadata"
+revision: str = "0003_knowledge_index_meta"
 down_revision: str | None = "0002_add_knowledge_base"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None

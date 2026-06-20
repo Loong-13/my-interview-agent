@@ -148,13 +148,16 @@ async function startMatch() {
     resume_id: refs.value.resumeId,
     job_description_id: refs.value.jdId,
   })
-  drafts.patch(projectId, { lastTaskId: task.task_id })
+  drafts.patch(projectId, { lastTaskId: task.task_id, matchReportGenerated: false })
 }
 
 async function handleTaskDone(task) {
   if (task.task_type === 'resume.parse' && refs.value.resumeId) {
     const resume = await resumeApi.get(refs.value.resumeId)
     resumeText.value = resume.raw_text || ''
+  }
+  if (task.task_type === 'match_report.generate') {
+    drafts.patch(projectId, { matchReportGenerated: true })
   }
 }
 </script>

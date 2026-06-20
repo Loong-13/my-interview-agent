@@ -128,7 +128,7 @@ const scoreRows = computed(() =>
 async function createAndStart() {
   const session = await interviewApi.create(projectId, form)
   sessionId.value = session.session_id
-  drafts.patch(projectId, { lastSessionId: session.session_id })
+  drafts.patch(projectId, { lastSessionId: session.session_id, interviewStarted: true })
   const start = await interviewApi.start(session.session_id)
   messages.value = [{ role: 'interviewer', content: start.first_question }]
 }

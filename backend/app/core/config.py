@@ -21,7 +21,7 @@ class Settings(BaseSettings):
 
     # 文件处理与外部 LLM 相关配置。
     upload_dir: str = "./uploads"
-    max_upload_size_mb: int = 10
+    max_upload_size_mb: int = 50
 
     llm_base_url: str = "https://dashscope.aliyuncs.com/compatible-mode/v1"
     llm_api_key: str = Field(default="replace_me", repr=False)

@@ -8,10 +8,10 @@
       <el-button @click="router.push(`/projects/${projectId}`)">返回项目</el-button>
     </div>
 
-    <TaskStatus :task-id="refs.lastTaskId" title="题目生成任务" @success="loadQuestions" />
+    <TaskStatus :task-id="refs.lastTaskId" title="题目生成任务" @success="handleTaskSuccess" />
 
-    <div class="grid">
-      <section class="panel span-5">
+    <div class="grid question-layout">
+      <section class="panel span-5 generate-panel">
         <h2 class="panel-title">生成题目</h2>
         <el-form :model="form" label-position="top">
           <el-form-item label="模式">
@@ -56,27 +56,29 @@
         </div>
       </section>
 
-      <section class="panel span-7">
+      <section class="panel span-7 questions-panel">
         <div class="panel-head">
           <h2 class="panel-title">项目题目</h2>
           <el-button text type="primary" @click="loadQuestions">刷新</el-button>
         </div>
 
-        <div v-if="questions.length" class="question-list">
-          <article v-for="item in questions" :key="item.id" class="question-card">
-            <div class="question-meta">
-              <el-tag>{{ labelOf(questionModes, item.type) }}</el-tag>
-              <el-tag type="info">{{ labelOf(experienceLevels, item.difficulty) }}</el-tag>
-            </div>
-            <h3>{{ item.question }}</h3>
-            <div class="tag-list">
-              <el-tag v-for="point in item.evaluation_points" :key="point" type="success" effect="plain">
-                {{ point }}
-              </el-tag>
-            </div>
-          </article>
+        <div class="questions-scroll">
+          <div v-if="questions.length" class="question-list">
+            <article v-for="item in questions" :key="item.id" class="question-card">
+              <div class="question-meta">
+                <el-tag>{{ labelOf(questionModes, item.type) }}</el-tag>
+                <el-tag type="info">{{ labelOf(experienceLevels, item.difficulty) }}</el-tag>
+              </div>
+              <h3>{{ item.question }}</h3>
+              <div class="tag-list">
+                <el-tag v-for="point in item.evaluation_points" :key="point" type="success" effect="plain">
+                  {{ point }}
+                </el-tag>
+              </div>
+            </article>
+          </div>
+          <div v-else class="empty">暂无题目。先生成一组项目相关题。</div>
         </div>
-        <div v-else class="empty">暂无题目。先生成一组项目相关题。</div>
       </section>
     </div>
   </div>
@@ -126,7 +128,12 @@ async function generate(fromKnowledge) {
   const task = fromKnowledge
     ? await questionApi.generateFromKnowledge(projectId, { ...payload, collection_ids: collectionIds.value })
     : await questionApi.generate(projectId, payload)
-  drafts.patch(projectId, { lastTaskId: task.task_id })
+  drafts.patch(projectId, { lastTaskId: task.task_id, questionsGenerated: false })
+}
+
+async function handleTaskSuccess() {
+  drafts.patch(projectId, { matchReportGenerated: true, questionsGenerated: true })
+  await loadQuestions()
 }
 
 onMounted(() => {
@@ -138,8 +145,33 @@ onMounted(() => {
 <style scoped>
 .panel-head {
   display: flex;
+  flex: 0 0 auto;
   align-items: center;
   justify-content: space-between;
+}
+
+.question-layout {
+  align-items: start;
+}
+
+.generate-panel {
+  position: sticky;
+  top: 24px;
+}
+
+.questions-panel {
+  display: flex;
+  height: calc(100vh - 250px);
+  min-height: 420px;
+  flex-direction: column;
+}
+
+.questions-scroll {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 6px;
 }
 
 .question-list {
@@ -163,5 +195,21 @@ onMounted(() => {
 .question-meta {
   display: flex;
   gap: 8px;
+}
+
+@media (max-width: 900px) {
+  .generate-panel {
+    position: static;
+  }
+
+  .questions-panel {
+    height: auto;
+    max-height: none;
+  }
+
+  .questions-scroll {
+    overflow-y: visible;
+    padding-right: 0;
+  }
 }
 </style>

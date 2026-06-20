@@ -1,27 +1,33 @@
-"""密码哈希与 JWT 令牌辅助函数。"""
+"""Password hashing and JWT helpers."""
 
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
+import bcrypt
 import jwt
-from passlib.context import CryptContext
 
 from app.core.config import settings
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 ALGORITHM = "HS256"
+MAX_BCRYPT_PASSWORD_BYTES = 72
+
+
+def _password_bytes(password: str) -> bytes:
+    data = password.encode("utf-8")
+    if len(data) > MAX_BCRYPT_PASSWORD_BYTES:
+        raise ValueError("Password must be at most 72 bytes when encoded as UTF-8")
+    return data
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+    return bcrypt.checkpw(_password_bytes(plain_password), hashed_password.encode("utf-8"))
 
 
 def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
+    return bcrypt.hashpw(_password_bytes(password), bcrypt.gensalt()).decode("utf-8")
 
 
 def create_access_token(subject: str, expires_delta: timedelta | None = None) -> str:
-    # 将用户 id 放入 JWT 的 subject 字段，并设置标准过期时间。
     expire = datetime.now(UTC) + (
         expires_delta or timedelta(minutes=settings.access_token_expire_minutes)
     )

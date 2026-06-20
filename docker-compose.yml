@@ -1,4 +1,4 @@
-services:
+﻿services:
   postgres:
     image: pgvector/pgvector:pg16
     environment:
@@ -21,6 +21,11 @@ services:
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     env_file:
       - ./backend/.env
+    environment:
+      DATABASE_URL: postgresql+psycopg://pyoffer:pyoffer@postgres:5432/pyoffer
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
     ports:
       - "8000:8000"
     volumes:
@@ -35,6 +40,11 @@ services:
     command: celery -A app.workers.celery_app worker --loglevel=info
     env_file:
       - ./backend/.env
+    environment:
+      DATABASE_URL: postgresql+psycopg://pyoffer:pyoffer@postgres:5432/pyoffer
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
     volumes:
       - ./backend:/app
     depends_on:

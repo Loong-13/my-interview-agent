@@ -66,7 +66,7 @@ class EvaluatorAgent(BaseLLMAgent):
         messages: list[dict[str, Any]],
         resume_analysis: dict[str, Any] | None = None,
         jd_analysis: dict[str, Any] | None = None,
-        model: str = "qwen3-max-latest",
+        model: str | None = None,
         api_key: str | None = None,
     ):
         super().__init__(model=model, api_key=api_key)

@@ -33,7 +33,7 @@ class JDAnalyzerAgent(BaseLLMAgent):
     def __init__(
         self,
         jd_text: str,
-        model: str = "qwen3-max-latest",
+        model: str | None = None,
         api_key: str | None = None,
     ):
         super().__init__(model=model, api_key=api_key)
