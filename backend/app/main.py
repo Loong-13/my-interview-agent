@@ -1,6 +1,15 @@
 """后端 API 的 FastAPI 应用入口。"""
+# ruff: noqa: E402
+
+import sys
+from pathlib import Path
 
 from fastapi import FastAPI
+
+# 兼容在 IDE 中直接运行 `python backend/app/main.py` 的场景。
+project_root = Path(__file__).resolve().parents[2]
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
 from backend.app.api.v1.router import api_router
 from backend.app.core.config import settings
@@ -22,3 +31,20 @@ def create_app() -> FastAPI:
 
 
 app = create_app()
+
+
+def run() -> None:
+    """本地开发启动入口。"""
+    import uvicorn
+
+    uvicorn.run(
+        "backend.app.main:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=settings.app_env == "local",
+        app_dir=str(project_root),
+    )
+
+
+if __name__ == "__main__":
+    run()
