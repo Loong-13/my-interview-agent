@@ -2,7 +2,7 @@ import uuid
 
 from pydantic import BaseModel, Field
 
-from backend.app.schemas.common import InterviewMode, ORMModel
+from app.schemas.common import InterviewMode, ORMModel
 
 
 class QuestionGenerateRequest(BaseModel):

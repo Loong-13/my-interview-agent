@@ -6,11 +6,11 @@ import uuid
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from backend.app.core.exceptions import AppError
-from backend.app.models.knowledge import QuestionBankItem, QuestionBankItemEmbedding
-from backend.app.schemas.question_bank import QuestionBankImportRequest, QuestionBankItemCreate
-from backend.app.services.knowledge_base_service import get_collection_for_user
-from backend.app.utils.embedding_client import embed_texts, get_embedding_model_name
+from app.core.exceptions import AppError
+from app.models.knowledge import QuestionBankItem, QuestionBankItemEmbedding
+from app.schemas.question_bank import QuestionBankImportRequest, QuestionBankItemCreate
+from app.services.knowledge_base_service import get_collection_for_user
+from app.utils.embedding_client import embed_texts, get_embedding_model_name
 
 
 def create_question_bank_item(

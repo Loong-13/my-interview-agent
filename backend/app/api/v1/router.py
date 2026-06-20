@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter
 
-from backend.app.api.v1 import (
+from app.api.v1 import (
     auth,
     interviews,
     job_descriptions,

@@ -3,7 +3,7 @@
 import json
 from typing import Any
 
-from backend.app.agents.base import BaseLLMAgent
+from app.agents.base import BaseLLMAgent
 
 QUESTION_PROMPT = """你是一名熟悉 Python 后端、FastAPI、数据库、RAG 和 Agent 面试的题目生成专家。
 

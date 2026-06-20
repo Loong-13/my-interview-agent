@@ -8,10 +8,10 @@ from jwt import PyJWTError
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from backend.app.core.database import get_db
-from backend.app.core.exceptions import AppError
-from backend.app.core.security import decode_access_token
-from backend.app.models.user import User
+from app.core.database import get_db
+from app.core.exceptions import AppError
+from app.core.security import decode_access_token
+from app.models.user import User
 
 bearer_scheme = HTTPBearer(auto_error=False)
 

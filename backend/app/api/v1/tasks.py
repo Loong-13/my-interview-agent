@@ -3,11 +3,11 @@ import uuid
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from backend.app.api.deps import get_current_user
-from backend.app.core.database import get_db
-from backend.app.models.user import User
-from backend.app.schemas.task import AsyncTaskResponse
-from backend.app.services.task_service import get_task_for_user
+from app.api.deps import get_current_user
+from app.core.database import get_db
+from app.models.user import User
+from app.schemas.task import AsyncTaskResponse
+from app.services.task_service import get_task_for_user
 
 router = APIRouter()
 

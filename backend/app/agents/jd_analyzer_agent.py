@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from backend.app.agents.base import BaseLLMAgent
+from app.agents.base import BaseLLMAgent
 
 JD_PROMPT = """你是一名技术招聘 JD 分析专家。
 

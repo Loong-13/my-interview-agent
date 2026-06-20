@@ -7,17 +7,17 @@ from fastapi import APIRouter, Depends, File, UploadFile
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from backend.app.api.deps import get_current_user
-from backend.app.core.config import settings
-from backend.app.core.database import get_db
-from backend.app.core.exceptions import AppError
-from backend.app.models.resume import Resume
-from backend.app.models.user import User
-from backend.app.schemas.common import TaskAccepted
-from backend.app.schemas.resume import ResumeAnalyzeRequest, ResumeParseResponse, ResumeUploadResponse
-from backend.app.services.project_service import get_project_for_user
-from backend.app.services.task_service import create_async_task
-from backend.app.workers.tasks.resume_tasks import analyze_resume_task, parse_resume_task
+from app.api.deps import get_current_user
+from app.core.config import settings
+from app.core.database import get_db
+from app.core.exceptions import AppError
+from app.models.resume import Resume
+from app.models.user import User
+from app.schemas.common import TaskAccepted
+from app.schemas.resume import ResumeAnalyzeRequest, ResumeParseResponse, ResumeUploadResponse
+from app.services.project_service import get_project_for_user
+from app.services.task_service import create_async_task
+from app.workers.tasks.resume_tasks import analyze_resume_task, parse_resume_task
 
 router = APIRouter()
 

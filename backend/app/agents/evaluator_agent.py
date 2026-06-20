@@ -3,7 +3,7 @@
 import json
 from typing import Any
 
-from backend.app.agents.base import BaseLLMAgent
+from app.agents.base import BaseLLMAgent
 
 EVALUATOR_PROMPT = """你是一名技术面试评估官。
 

@@ -4,8 +4,8 @@ from sqlalchemy import DateTime, ForeignKey, String, Text, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from backend.app.core.database import Base
-from backend.app.models.mixins import UUIDPrimaryKeyMixin
+from app.core.database import Base
+from app.models.mixins import UUIDPrimaryKeyMixin
 
 
 class Question(UUIDPrimaryKeyMixin, Base):

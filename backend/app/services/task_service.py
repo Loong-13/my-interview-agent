@@ -6,8 +6,8 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from backend.app.core.exceptions import AppError
-from backend.app.models.async_task import AsyncTask
+from app.core.exceptions import AppError
+from app.models.async_task import AsyncTask
 
 
 def create_async_task(

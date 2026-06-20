@@ -8,11 +8,11 @@ import uuid
 
 from sqlalchemy.orm import Session
 
-from backend.app.core.exceptions import AppError
-from backend.app.models.job_description import JobDescription
-from backend.app.models.user import User
-from backend.app.services.task_service import create_async_task
-from backend.app.workers.tasks.jd_tasks import analyze_jd_task
+from app.core.exceptions import AppError
+from app.models.job_description import JobDescription
+from app.models.user import User
+from app.services.task_service import create_async_task
+from app.workers.tasks.jd_tasks import analyze_jd_task
 
 
 def dispatch_analyze_task(

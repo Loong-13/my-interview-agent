@@ -2,7 +2,7 @@ import uuid
 
 from pydantic import BaseModel, EmailStr, Field
 
-from backend.app.schemas.common import ORMModel
+from app.schemas.common import ORMModel
 
 
 class RegisterRequest(BaseModel):

@@ -3,10 +3,10 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from backend.app.core.exceptions import AppError
-from backend.app.core.security import create_access_token, get_password_hash, verify_password
-from backend.app.models.user import User
-from backend.app.schemas.auth import RegisterRequest, TokenResponse
+from app.core.exceptions import AppError
+from app.core.security import create_access_token, get_password_hash, verify_password
+from app.models.user import User
+from app.schemas.auth import RegisterRequest, TokenResponse
 
 
 def register_user(db: Session, payload: RegisterRequest) -> User:

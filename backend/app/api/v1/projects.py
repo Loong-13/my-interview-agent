@@ -5,12 +5,12 @@ import uuid
 from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
 
-from backend.app.api.deps import get_current_user
-from backend.app.core.database import get_db
-from backend.app.models.project import Project
-from backend.app.models.user import User
-from backend.app.schemas.project import ProjectCreate, ProjectListResponse, ProjectResponse, ProjectUpdate
-from backend.app.services.project_service import (
+from app.api.deps import get_current_user
+from app.core.database import get_db
+from app.models.project import Project
+from app.models.user import User
+from app.schemas.project import ProjectCreate, ProjectListResponse, ProjectResponse, ProjectUpdate
+from app.services.project_service import (
     archive_project,
     create_project,
     get_project_for_user,

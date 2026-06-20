@@ -8,11 +8,11 @@ import uuid
 
 from sqlalchemy.orm import Session
 
-from backend.app.core.exceptions import AppError
-from backend.app.models.resume import Resume
-from backend.app.models.user import User
-from backend.app.services.task_service import create_async_task
-from backend.app.workers.tasks.resume_tasks import analyze_resume_task, parse_resume_task
+from app.core.exceptions import AppError
+from app.models.resume import Resume
+from app.models.user import User
+from app.services.task_service import create_async_task
+from app.workers.tasks.resume_tasks import analyze_resume_task, parse_resume_task
 
 
 def dispatch_parse_task(

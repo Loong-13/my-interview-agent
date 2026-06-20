@@ -5,15 +5,15 @@ import uuid
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from backend.app.api.deps import get_current_user
-from backend.app.core.database import get_db
-from backend.app.models.job_description import JobDescription
-from backend.app.models.user import User
-from backend.app.schemas.common import TaskAccepted
-from backend.app.schemas.job_description import JobDescriptionCreate, JobDescriptionResponse
-from backend.app.services.project_service import get_project_for_user
-from backend.app.services.task_service import create_async_task
-from backend.app.workers.tasks.jd_tasks import analyze_jd_task
+from app.api.deps import get_current_user
+from app.core.database import get_db
+from app.models.job_description import JobDescription
+from app.models.user import User
+from app.schemas.common import TaskAccepted
+from app.schemas.job_description import JobDescriptionCreate, JobDescriptionResponse
+from app.services.project_service import get_project_for_user
+from app.services.task_service import create_async_task
+from app.workers.tasks.jd_tasks import analyze_jd_task
 
 router = APIRouter()
 

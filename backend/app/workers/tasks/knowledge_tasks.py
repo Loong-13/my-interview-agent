@@ -6,16 +6,16 @@ from datetime import UTC, datetime
 
 from sqlalchemy import delete
 
-from backend.app.core.database import SessionLocal
-from backend.app.models.knowledge import KnowledgeChunk, KnowledgeDocument
-from backend.app.schemas.question_bank import QuestionBankImportRequest
-from backend.app.services.knowledge_base_service import make_content_hash
-from backend.app.services.question_bank_service import import_question_bank_items, parse_qa_markdown
-from backend.app.services.task_service import update_task_status
-from backend.app.utils.document_parser import parse_document_text
-from backend.app.utils.embedding_client import embed_texts, get_embedding_model_name
-from backend.app.utils.text_chunker import clean_text, split_text_into_chunks
-from backend.app.workers.celery_app import celery_app
+from app.core.database import SessionLocal
+from app.models.knowledge import KnowledgeChunk, KnowledgeDocument
+from app.schemas.question_bank import QuestionBankImportRequest
+from app.services.knowledge_base_service import make_content_hash
+from app.services.question_bank_service import import_question_bank_items, parse_qa_markdown
+from app.services.task_service import update_task_status
+from app.utils.document_parser import parse_document_text
+from app.utils.embedding_client import embed_texts, get_embedding_model_name
+from app.utils.text_chunker import clean_text, split_text_into_chunks
+from app.workers.celery_app import celery_app
 
 logger = logging.getLogger(__name__)
 
@@ -82,7 +82,7 @@ def index_knowledge_document_task(self, document_id: str, extract_questions: boo
         if extract_questions and document.collection_id:
             # 自动抽题只处理明显 Q/A 格式，避免强行从普通段落造题。
             for question, answer in parse_qa_markdown(cleaned):
-                from backend.app.models.knowledge import QuestionBankItem
+                from app.models.knowledge import QuestionBankItem
 
                 db.add(
                     QuestionBankItem(

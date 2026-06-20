@@ -4,20 +4,20 @@ import logging
 import uuid
 from typing import Any
 
-from backend.app.agents.question_generator_agent import QuestionGeneratorAgent
-from backend.app.core.database import SessionLocal
-from backend.app.models.job_description import JobDescription
-from backend.app.models.match_report import MatchReport
-from backend.app.models.project import Project
-from backend.app.models.question import Question
-from backend.app.models.resume import Resume
-from backend.app.services.knowledge_base_service import (
+from app.agents.question_generator_agent import QuestionGeneratorAgent
+from app.core.database import SessionLocal
+from app.models.job_description import JobDescription
+from app.models.match_report import MatchReport
+from app.models.project import Project
+from app.models.question import Question
+from app.models.resume import Resume
+from app.services.knowledge_base_service import (
     build_retrieval_query,
     search_chunks,
     search_question_bank_items,
 )
-from backend.app.services.task_service import update_task_status
-from backend.app.workers.celery_app import celery_app
+from app.services.task_service import update_task_status
+from app.workers.celery_app import celery_app
 
 logger = logging.getLogger(__name__)
 

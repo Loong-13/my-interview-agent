@@ -5,11 +5,11 @@ import uuid
 
 from sqlalchemy import select
 
-from backend.app.agents.evaluator_agent import EvaluatorAgent
-from backend.app.core.database import SessionLocal
-from backend.app.models.interview import InterviewMessage, InterviewReport, InterviewSession
-from backend.app.services.task_service import update_task_status
-from backend.app.workers.celery_app import celery_app
+from app.agents.evaluator_agent import EvaluatorAgent
+from app.core.database import SessionLocal
+from app.models.interview import InterviewMessage, InterviewReport, InterviewSession
+from app.services.task_service import update_task_status
+from app.workers.celery_app import celery_app
 
 logger = logging.getLogger(__name__)
 

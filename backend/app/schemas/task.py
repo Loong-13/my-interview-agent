@@ -1,7 +1,7 @@
 import uuid
 from typing import Any
 
-from backend.app.schemas.common import ORMModel
+from app.schemas.common import ORMModel
 
 
 class AsyncTaskResponse(ORMModel):

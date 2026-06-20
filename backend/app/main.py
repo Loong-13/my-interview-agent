@@ -11,9 +11,9 @@ project_root = Path(__file__).resolve().parents[2]
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
-from backend.app.api.v1.router import api_router
-from backend.app.core.config import settings
-from backend.app.core.exceptions import register_exception_handlers
+from app.api.v1.router import api_router
+from app.core.config import settings
+from app.core.exceptions import register_exception_handlers
 
 
 def create_app() -> FastAPI:
@@ -38,7 +38,7 @@ def run() -> None:
     import uvicorn
 
     uvicorn.run(
-        "backend.app.main:app",
+        "app.main:app",
         host="0.0.0.0",
         port=8000,
         reload=settings.app_env == "local",

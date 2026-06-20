@@ -5,10 +5,10 @@ import uuid
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from backend.app.core.exceptions import AppError
-from backend.app.models.match_report import MatchReport
-from backend.app.models.project import Project
-from backend.app.schemas.project import ProjectCreate, ProjectResponse, ProjectUpdate
+from app.core.exceptions import AppError
+from app.models.match_report import MatchReport
+from app.models.project import Project
+from app.schemas.project import ProjectCreate, ProjectResponse, ProjectUpdate
 
 
 def create_project(db: Session, user_id: uuid.UUID, payload: ProjectCreate) -> Project:

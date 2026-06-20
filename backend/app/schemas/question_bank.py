@@ -6,7 +6,7 @@ from enum import StrEnum
 
 from pydantic import BaseModel, Field
 
-from backend.app.schemas.common import ORMModel
+from app.schemas.common import ORMModel
 
 
 class QuestionBankSource(StrEnum):

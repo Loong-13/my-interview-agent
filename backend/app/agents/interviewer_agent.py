@@ -3,7 +3,7 @@
 import json
 from typing import Any
 
-from backend.app.agents.base import BaseLLMAgent
+from app.agents.base import BaseLLMAgent
 
 INTERVIEWER_PROMPT = """你是一名严格但公平的技术面试官，面试对象是应届生或实习生。
 

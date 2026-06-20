@@ -3,12 +3,12 @@
 import logging
 import uuid
 
-from backend.app.agents.resume_agent import ResumeAgent
-from backend.app.core.database import SessionLocal
-from backend.app.models.resume import Resume
-from backend.app.services.task_service import update_task_status
-from backend.app.utils.document_parser import parse_document_text
-from backend.app.workers.celery_app import celery_app
+from app.agents.resume_agent import ResumeAgent
+from app.core.database import SessionLocal
+from app.models.resume import Resume
+from app.services.task_service import update_task_status
+from app.utils.document_parser import parse_document_text
+from app.workers.celery_app import celery_app
 
 logger = logging.getLogger(__name__)
 

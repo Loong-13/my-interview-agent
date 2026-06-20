@@ -6,21 +6,21 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from backend.app.api.deps import get_current_user
-from backend.app.core.database import get_db
-from backend.app.models.question import Question
-from backend.app.models.user import User
-from backend.app.schemas.common import TaskAccepted
-from backend.app.schemas.question import (
+from app.api.deps import get_current_user
+from app.core.database import get_db
+from app.models.question import Question
+from app.models.user import User
+from app.schemas.common import TaskAccepted
+from app.schemas.question import (
     QuestionGenerateFromKnowledgeRequest,
     QuestionGenerateRequest,
     QuestionListResponse,
     QuestionResponse,
 )
-from backend.app.services.knowledge_base_service import ensure_collections_belong_to_user
-from backend.app.services.project_service import get_project_for_user
-from backend.app.services.task_service import create_async_task
-from backend.app.workers.tasks.question_tasks import generate_questions_from_knowledge_task, generate_questions_task
+from app.services.knowledge_base_service import ensure_collections_belong_to_user
+from app.services.project_service import get_project_for_user
+from app.services.task_service import create_async_task
+from app.workers.tasks.question_tasks import generate_questions_from_knowledge_task, generate_questions_task
 
 router = APIRouter()
 

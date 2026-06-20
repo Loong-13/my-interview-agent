@@ -6,8 +6,8 @@ from sqlalchemy import ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from backend.app.core.database import Base
-from backend.app.models.mixins import TimestampMixin, UUIDPrimaryKeyMixin
+from app.core.database import Base
+from app.models.mixins import TimestampMixin, UUIDPrimaryKeyMixin
 
 
 class Project(UUIDPrimaryKeyMixin, TimestampMixin, Base):

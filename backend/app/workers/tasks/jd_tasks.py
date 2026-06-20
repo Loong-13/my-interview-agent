@@ -3,11 +3,11 @@
 import logging
 import uuid
 
-from backend.app.agents.jd_analyzer_agent import JDAnalyzerAgent
-from backend.app.core.database import SessionLocal
-from backend.app.models.job_description import JobDescription
-from backend.app.services.task_service import update_task_status
-from backend.app.workers.celery_app import celery_app
+from app.agents.jd_analyzer_agent import JDAnalyzerAgent
+from app.core.database import SessionLocal
+from app.models.job_description import JobDescription
+from app.services.task_service import update_task_status
+from app.workers.celery_app import celery_app
 
 logger = logging.getLogger(__name__)
 

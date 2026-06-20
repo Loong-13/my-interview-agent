@@ -2,7 +2,7 @@ import uuid
 
 from pydantic import BaseModel
 
-from backend.app.schemas.common import Direction, ORMModel
+from app.schemas.common import Direction, ORMModel
 
 
 class ResumeUploadResponse(ORMModel):

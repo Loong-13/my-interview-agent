@@ -6,13 +6,13 @@ from pathlib import Path
 from fastapi import APIRouter, Depends, File, Form, UploadFile
 from sqlalchemy.orm import Session
 
-from backend.app.api.deps import get_current_user
-from backend.app.core.config import settings
-from backend.app.core.database import get_db
-from backend.app.core.exceptions import AppError
-from backend.app.models.user import User
-from backend.app.schemas.common import TaskAccepted
-from backend.app.schemas.knowledge import (
+from app.api.deps import get_current_user
+from app.core.config import settings
+from app.core.database import get_db
+from app.core.exceptions import AppError
+from app.models.user import User
+from app.schemas.common import TaskAccepted
+from app.schemas.knowledge import (
     KnowledgeCollectionCreate,
     KnowledgeCollectionListResponse,
     KnowledgeCollectionResponse,
@@ -26,7 +26,7 @@ from backend.app.schemas.knowledge import (
     KnowledgeSearchResponse,
     KnowledgeTextDocumentCreate,
 )
-from backend.app.services.knowledge_base_service import (
+from app.services.knowledge_base_service import (
     create_collection,
     create_text_document,
     create_uploaded_document,
@@ -35,8 +35,8 @@ from backend.app.services.knowledge_base_service import (
     list_documents,
     search_chunks,
 )
-from backend.app.services.task_service import create_async_task
-from backend.app.workers.tasks.knowledge_tasks import index_knowledge_document_task
+from app.services.task_service import create_async_task
+from app.workers.tasks.knowledge_tasks import index_knowledge_document_task
 
 router = APIRouter()
 

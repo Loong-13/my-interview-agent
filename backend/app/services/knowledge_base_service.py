@@ -8,10 +8,10 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from backend.app.core.exceptions import AppError
-from backend.app.models.knowledge import KnowledgeChunk, KnowledgeCollection, KnowledgeDocument, QuestionBankItem
-from backend.app.schemas.knowledge import KnowledgeCollectionCreate, KnowledgeTextDocumentCreate
-from backend.app.utils.embedding_client import cosine_similarity, embed_texts
+from app.core.exceptions import AppError
+from app.models.knowledge import KnowledgeChunk, KnowledgeCollection, KnowledgeDocument, QuestionBankItem
+from app.schemas.knowledge import KnowledgeCollectionCreate, KnowledgeTextDocumentCreate
+from app.utils.embedding_client import cosine_similarity, embed_texts
 
 
 def create_collection(db: Session, *, user_id: uuid.UUID, payload: KnowledgeCollectionCreate) -> KnowledgeCollection:

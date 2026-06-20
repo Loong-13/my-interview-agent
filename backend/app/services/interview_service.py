@@ -4,9 +4,9 @@ import uuid
 
 from sqlalchemy.orm import Session
 
-from backend.app.models.user import User
-from backend.app.services.task_service import create_async_task
-from backend.app.workers.tasks.interview_tasks import generate_interview_report_task
+from app.models.user import User
+from app.services.task_service import create_async_task
+from app.workers.tasks.interview_tasks import generate_interview_report_task
 
 
 def dispatch_report_task(

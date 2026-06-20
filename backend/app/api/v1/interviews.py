@@ -7,14 +7,14 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from backend.app.agents.interviewer_agent import InterviewerAgent
-from backend.app.api.deps import get_current_user
-from backend.app.core.database import get_db
-from backend.app.core.exceptions import AppError
-from backend.app.models.interview import InterviewMessage, InterviewReport, InterviewSession
-from backend.app.models.user import User
-from backend.app.schemas.common import TaskAccepted
-from backend.app.schemas.interview import (
+from app.agents.interviewer_agent import InterviewerAgent
+from app.api.deps import get_current_user
+from app.core.database import get_db
+from app.core.exceptions import AppError
+from app.models.interview import InterviewMessage, InterviewReport, InterviewSession
+from app.models.user import User
+from app.schemas.common import TaskAccepted
+from app.schemas.interview import (
     InterviewAnswerRequest,
     InterviewAnswerResponse,
     InterviewCreate,
@@ -23,9 +23,9 @@ from backend.app.schemas.interview import (
     InterviewReportResponse,
     InterviewStartResponse,
 )
-from backend.app.services.project_service import get_project_for_user
-from backend.app.services.task_service import create_async_task
-from backend.app.workers.tasks.interview_tasks import generate_interview_report_task
+from app.services.project_service import get_project_for_user
+from app.services.task_service import create_async_task
+from app.workers.tasks.interview_tasks import generate_interview_report_task
 
 router = APIRouter()
 

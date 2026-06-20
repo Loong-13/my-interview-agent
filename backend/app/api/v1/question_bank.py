@@ -5,19 +5,19 @@ import uuid
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
-from backend.app.api.deps import get_current_user
-from backend.app.core.database import get_db
-from backend.app.models.user import User
-from backend.app.schemas.common import TaskAccepted
-from backend.app.schemas.question_bank import (
+from app.api.deps import get_current_user
+from app.core.database import get_db
+from app.models.user import User
+from app.schemas.common import TaskAccepted
+from app.schemas.question_bank import (
     QuestionBankImportRequest,
     QuestionBankItemCreate,
     QuestionBankItemListResponse,
     QuestionBankItemResponse,
 )
-from backend.app.services.question_bank_service import create_question_bank_item, list_question_bank_items
-from backend.app.services.task_service import create_async_task
-from backend.app.workers.tasks.knowledge_tasks import import_question_bank_task
+from app.services.question_bank_service import create_question_bank_item, list_question_bank_items
+from app.services.task_service import create_async_task
+from app.workers.tasks.knowledge_tasks import import_question_bank_task
 
 router = APIRouter()
 

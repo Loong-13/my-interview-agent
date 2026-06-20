@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from backend.app.agents.base import BaseLLMAgent
+from app.agents.base import BaseLLMAgent
 
 RESUME_PROMPT = """你是一名熟悉 Python 后端和 AI Agent 应用开发岗位的简历评审专家。
 

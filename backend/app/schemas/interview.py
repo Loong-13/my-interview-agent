@@ -3,7 +3,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from backend.app.schemas.common import InterviewMode, ORMModel
+from app.schemas.common import InterviewMode, ORMModel
 
 
 class InterviewCreate(BaseModel):

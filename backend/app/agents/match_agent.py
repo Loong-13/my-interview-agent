@@ -3,7 +3,7 @@
 import json
 from typing import Any
 
-from backend.app.agents.base import BaseLLMAgent
+from app.agents.base import BaseLLMAgent
 
 MATCH_PROMPT = """你是一名求职匹配分析专家。
 

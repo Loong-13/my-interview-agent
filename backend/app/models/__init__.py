@@ -1,18 +1,18 @@
-from backend.app.models.async_task import AsyncTask
-from backend.app.models.interview import InterviewMessage, InterviewReport, InterviewSession
-from backend.app.models.job_description import JobDescription
-from backend.app.models.knowledge import (
+from app.models.async_task import AsyncTask
+from app.models.interview import InterviewMessage, InterviewReport, InterviewSession
+from app.models.job_description import JobDescription
+from app.models.knowledge import (
     KnowledgeChunk,
     KnowledgeCollection,
     KnowledgeDocument,
     QuestionBankItem,
     QuestionBankItemEmbedding,
 )
-from backend.app.models.match_report import MatchReport
-from backend.app.models.project import Project
-from backend.app.models.question import Question
-from backend.app.models.resume import Resume
-from backend.app.models.user import User
+from app.models.match_report import MatchReport
+from app.models.project import Project
+from app.models.question import Question
+from app.models.resume import Resume
+from app.models.user import User
 
 __all__ = [
     "AsyncTask",

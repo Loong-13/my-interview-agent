@@ -3,13 +3,13 @@
 import logging
 import uuid
 
-from backend.app.agents.match_agent import MatchAgent
-from backend.app.core.database import SessionLocal
-from backend.app.models.job_description import JobDescription
-from backend.app.models.match_report import MatchReport
-from backend.app.models.resume import Resume
-from backend.app.services.task_service import update_task_status
-from backend.app.workers.celery_app import celery_app
+from app.agents.match_agent import MatchAgent
+from app.core.database import SessionLocal
+from app.models.job_description import JobDescription
+from app.models.match_report import MatchReport
+from app.models.resume import Resume
+from app.services.task_service import update_task_status
+from app.workers.celery_app import celery_app
 
 logger = logging.getLogger(__name__)
 
