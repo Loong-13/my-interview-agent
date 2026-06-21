@@ -51,22 +51,41 @@ def generate_interview_report_task(self, session_id: str) -> dict[str, str]:
         analysis = agent.analyze()
 
         scores = analysis.get("scores", {})
-        report = InterviewReport(
-            session_id=uuid.UUID(session_id),
-            overall_score=analysis.get("overall_score", 0),
-            scores={
+        session_uuid = uuid.UUID(session_id)
+
+        # 检查是否已有报告（session_id 有唯一约束），有则更新，无则新建
+        existing = db.scalar(select(InterviewReport).where(InterviewReport.session_id == session_uuid))
+        if existing:
+            existing.overall_score = analysis.get("overall_score", 0)
+            existing.scores = {
                 dim: scores.get(dim, 0)
                 for dim in ("python_foundation", "backend_engineering", "database_understanding",
                             "agent_understanding", "project_depth", "communication")
-            },
-            strengths=analysis.get("strengths", []),
-            weaknesses=analysis.get("weaknesses", []),
-            suggestions=analysis.get("suggestions", []),
-            recommended_topics=analysis.get("recommended_topics", []),
-            improved_answers=analysis.get("improved_answers", []),
-            raw_report=analysis,
-        )
-        db.add(report)
+            }
+            existing.strengths = analysis.get("strengths", [])
+            existing.weaknesses = analysis.get("weaknesses", [])
+            existing.suggestions = analysis.get("suggestions", [])
+            existing.recommended_topics = analysis.get("recommended_topics", [])
+            existing.improved_answers = analysis.get("improved_answers", [])
+            existing.raw_report = analysis
+            report = existing
+        else:
+            report = InterviewReport(
+                session_id=session_uuid,
+                overall_score=analysis.get("overall_score", 0),
+                scores={
+                    dim: scores.get(dim, 0)
+                    for dim in ("python_foundation", "backend_engineering", "database_understanding",
+                                "agent_understanding", "project_depth", "communication")
+                },
+                strengths=analysis.get("strengths", []),
+                weaknesses=analysis.get("weaknesses", []),
+                suggestions=analysis.get("suggestions", []),
+                recommended_topics=analysis.get("recommended_topics", []),
+                improved_answers=analysis.get("improved_answers", []),
+                raw_report=analysis,
+            )
+            db.add(report)
         db.commit()
         db.refresh(report)
         update_task_status(

@@ -25,7 +25,7 @@ class Settings(BaseSettings):
 
     llm_base_url: str = "https://dashscope.aliyuncs.com/compatible-mode/v1"
     llm_api_key: str = Field(default="replace_me", repr=False)
-    llm_model: str = "qwen3-max-latest"
+    llm_model: str = "qwen3-max"
     embedding_model: str = "text-embedding-v3"
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")

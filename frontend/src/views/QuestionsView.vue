@@ -70,6 +70,12 @@
                 <el-tag type="info">{{ labelOf(experienceLevels, item.difficulty) }}</el-tag>
               </div>
               <h3>{{ item.question }}</h3>
+              <div v-if="item.reference_answer" class="answer-section">
+                <el-button text size="small" @click="item._showAnswer = !item._showAnswer">
+                  {{ item._showAnswer ? '收起答案 ▴' : '展开答案 ▾' }}
+                </el-button>
+                <p v-show="item._showAnswer" class="answer-text">{{ item.reference_answer }}</p>
+              </div>
               <div class="tag-list">
                 <el-tag v-for="point in item.evaluation_points" :key="point" type="success" effect="plain">
                   {{ point }}
@@ -195,6 +201,22 @@ onMounted(() => {
 .question-meta {
   display: flex;
   gap: 8px;
+}
+
+.answer-section {
+  margin: 6px 0 0;
+}
+
+.answer-text {
+  margin: 8px 0;
+  padding: 10px 12px;
+  background: #f5f7fa;
+  border-left: 3px solid var(--el-color-primary);
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #4a5568;
+  white-space: pre-wrap;
 }
 
 @media (max-width: 900px) {

@@ -22,6 +22,7 @@ class QuestionResponse(ORMModel):
     difficulty: str
     question: str
     evaluation_points: list[str]
+    reference_answer: str = ""
     source_chunk_ids: list[str] = Field(default_factory=list)
     source: str
 

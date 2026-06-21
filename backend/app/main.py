@@ -3,7 +3,7 @@
 
 import sys
 from pathlib import Path
-
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
 
 # 兼容在 IDE 中直接运行 `python backend/app/main.py` 的场景。
@@ -31,7 +31,16 @@ def create_app() -> FastAPI:
 
 
 app = create_app()
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://127.0.0.1:5173",
+        "https://1260xp99vn053.vicp.fun"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 def run() -> None:
     """本地开发启动入口。"""
